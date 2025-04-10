@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @SuppressWarnings({"unused", "NullableProblems"})
-public final class ListTag extends AbstractList<Tag> implements CollectionTag {
+public final class ListTag extends AbstractList<Tag> implements CollectionTag<Tag> {
 
 	private static final String WRAPPER_MARKER = "";
 	private final List<Tag> list;
@@ -108,18 +108,6 @@ public final class ListTag extends AbstractList<Tag> implements CollectionTag {
 
 	public void add(int i, Tag tag) {
 		this.list.add(i, tag);
-	}
-
-	@Override
-	public boolean setTag(int i, Tag tag) {
-		this.list.set(i, tag);
-		return true;
-	}
-
-	@Override
-	public boolean addTag(int i, Tag tag) {
-		this.list.add(i, tag);
-		return true;
 	}
 
 	public ListTag copy() {

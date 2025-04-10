@@ -10,7 +10,7 @@ import top.mcfpp.nbt.visitors.TagVisitor;
 import java.util.Arrays;
 import java.util.Optional;
 
-public final class LongArrayTag implements CollectionTag {
+public final class LongArrayTag implements CollectionTag<LongTag> {
 	private long[] data;
 
 	public LongArrayTag(long[] ls) {
@@ -57,23 +57,15 @@ public final class LongArrayTag implements CollectionTag {
 	}
 
 	@Override
-	public boolean setTag(int i, Tag tag) {
-		if (tag instanceof NumericTag numericTag) {
-			this.data[i] = numericTag.longValue();
-			return true;
-		} else {
-			return false;
-		}
+	public LongTag set(int i, LongTag tag) {
+		long l = this.data[i];
+		this.data[i] = tag.longValue();
+		return LongTag.valueOf(l);
 	}
 
 	@Override
-	public boolean addTag(int i, Tag tag) {
-		if (tag instanceof NumericTag numericTag) {
-			this.data = ArrayUtils.insert(i, this.data, numericTag.longValue());
-			return true;
-		} else {
-			return false;
-		}
+	public void add(int i, LongTag tag) {
+		this.data = ArrayUtils.insert(i, this.data, tag.longValue());
 	}
 
 	public LongTag remove(int i) {

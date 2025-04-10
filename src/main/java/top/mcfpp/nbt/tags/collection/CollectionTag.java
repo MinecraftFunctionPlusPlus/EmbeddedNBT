@@ -8,16 +8,16 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public sealed interface CollectionTag extends Iterable<Tag>, Tag permits ListTag, ByteArrayTag, IntArrayTag, LongArrayTag {
+public sealed interface CollectionTag<T extends Tag> extends Iterable<T>, Tag permits ListTag, ByteArrayTag, IntArrayTag, LongArrayTag {
 	void clear();
 
-	boolean setTag(int i, Tag tag);
+	T set(int i, T tag);
 
-	boolean addTag(int i, Tag tag);
+	void add(int i, T tag);
 
-	Tag remove(int i);
+	T remove(int i);
 
-	Tag get(int i);
+	T get(int i);
 
 	int size();
 
@@ -26,15 +26,15 @@ public sealed interface CollectionTag extends Iterable<Tag>, Tag permits ListTag
 	}
 
 	@NotNull
-	default Iterator<Tag> iterator() {
-		return new Iterator<Tag>() {
+	default Iterator<T> iterator() {
+		return new Iterator<>() {
 			private int index;
 
 			public boolean hasNext() {
 				return this.index < CollectionTag.this.size();
 			}
 
-			public Tag next() {
+			public T next() {
 				if (!this.hasNext()) {
 					throw new NoSuchElementException();
 				} else {
@@ -44,7 +44,7 @@ public sealed interface CollectionTag extends Iterable<Tag>, Tag permits ListTag
 		};
 	}
 
-	default Stream<Tag> stream() {
+	default Stream<T> stream() {
 		return StreamSupport.stream(this.spliterator(), false);
 	}
 }

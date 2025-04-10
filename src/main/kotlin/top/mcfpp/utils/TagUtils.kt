@@ -53,6 +53,7 @@ object TagUtils {
     fun `array=`(value:LongArray):LongArrayTag{
         return LongArrayTag(value)
     }
+    @Suppress("UNCHECKED_CAST")
     @JvmStatic
     inline fun <reified T> `array=`(vararg values:T):Tag{
         when (T::class){

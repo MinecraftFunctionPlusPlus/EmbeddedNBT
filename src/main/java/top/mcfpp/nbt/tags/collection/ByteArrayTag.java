@@ -10,7 +10,7 @@ import top.mcfpp.nbt.visitors.TagVisitor;
 import java.util.Arrays;
 import java.util.Optional;
 
-public final class ByteArrayTag implements CollectionTag {
+public final class ByteArrayTag implements CollectionTag<ByteTag> {
 	private byte[] data;
 
 	public ByteArrayTag(byte[] bs) {
@@ -58,23 +58,15 @@ public final class ByteArrayTag implements CollectionTag {
 	}
 
 	@Override
-	public boolean setTag(int i, Tag tag) {
-		if (tag instanceof NumericTag numericTag) {
-			this.data[i] = numericTag.byteValue();
-			return true;
-		} else {
-			return false;
-		}
+	public ByteTag set(int i, ByteTag tag) {
+		byte b = this.data[i];
+		this.data[i] = tag.byteValue();
+		return ByteTag.valueOf(b);
 	}
 
 	@Override
-	public boolean addTag(int i, Tag tag) {
-		if (tag instanceof NumericTag numericTag) {
-			this.data = ArrayUtils.insert(i, this.data, numericTag.byteValue());
-			return true;
-		} else {
-			return false;
-		}
+	public void add(int i, ByteTag tag) {
+		this.data = ArrayUtils.insert(i, this.data, tag.byteValue());
 	}
 
 	public ByteTag remove(int i) {

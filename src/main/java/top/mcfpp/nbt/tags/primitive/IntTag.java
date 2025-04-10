@@ -52,8 +52,6 @@ public record IntTag(int value) implements NumericTag {
 		return this.value;
 	}
 
-
-
 	@Override
 	public String toString() {
 		StringTagVisitor stringTagVisitor = new StringTagVisitor();

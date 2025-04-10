@@ -10,7 +10,7 @@ import top.mcfpp.nbt.visitors.TagVisitor;
 import java.util.Arrays;
 import java.util.Optional;
 
-public final class IntArrayTag implements CollectionTag {
+public final class IntArrayTag implements CollectionTag<IntTag> {
 	private int[] data;
 
 	public IntArrayTag(int[] is) {
@@ -57,23 +57,15 @@ public final class IntArrayTag implements CollectionTag {
 	}
 
 	@Override
-	public boolean setTag(int i, Tag tag) {
-		if (tag instanceof NumericTag numericTag) {
-			this.data[i] = numericTag.intValue();
-			return true;
-		} else {
-			return false;
-		}
+	public IntTag set(int i, IntTag tag) {
+		int j = this.data[i];
+		this.data[i] = tag.intValue();
+		return IntTag.valueOf(j);
 	}
 
 	@Override
-	public boolean addTag(int i, Tag tag) {
-		if (tag instanceof NumericTag numericTag) {
-			this.data = ArrayUtils.insert(i, this.data, numericTag.intValue());
-			return true;
-		} else {
-			return false;
-		}
+	public void add(int i, IntTag tag) {
+		this.data = ArrayUtils.insert(i, this.data, tag.intValue());
 	}
 
 	public IntTag remove(int i) {
