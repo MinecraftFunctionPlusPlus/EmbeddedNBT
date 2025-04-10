@@ -87,7 +87,6 @@ class SnbtPrinterTagVisitor @JvmOverloads constructor(
     }
 
     override fun visitLongArray(longArrayTag: LongArrayTag) {
-        val string = "L"
         val stringBuilder = StringBuilder(LIST_OPEN).append("L").append(LIST_TYPE_SEPARATOR)
         val ls = longArrayTag.asLongArray
 
@@ -103,7 +102,8 @@ class SnbtPrinterTagVisitor @JvmOverloads constructor(
     }
 
     override fun visitList(listTag: ListTag) {
-        if (listTag.isEmpty) {
+        val warpedListTag = listTag.wrappedList
+        if (warpedListTag.isEmpty) {
             this.result = "[]"
         } else {
             val stringBuilder = StringBuilder(LIST_OPEN)
@@ -113,14 +113,14 @@ class SnbtPrinterTagVisitor @JvmOverloads constructor(
                 stringBuilder.append(NEWLINE)
             }
 
-            for (i in listTag.indices) {
+            for (i in warpedListTag.indices) {
                 stringBuilder.append(Strings.repeat(string, this.depth + 1))
                 stringBuilder.append(
                     SnbtPrinterTagVisitor(string, this.depth + 1, this.path).visit(
-                        listTag[i]
+                        warpedListTag[i]
                     )
                 )
-                if (i != listTag.size - 1) {
+                if (i != warpedListTag.size - 1) {
                     stringBuilder.append(ELEMENT_SEPARATOR).append(if (string.isEmpty()) ELEMENT_SPACING else NEWLINE)
                 }
             }

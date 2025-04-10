@@ -120,6 +120,7 @@ enum class Base {
     HEX
 }
 
+@Suppress("UNCHECKED_CAST")
 @JvmRecord
 data class IntegerLiteral(val sign: Sign, val base: Base, val digits: String, val suffix: IntegerSuffix) {
     private fun signedOrDefault(): SignedPrefix {

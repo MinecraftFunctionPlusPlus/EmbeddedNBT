@@ -1,52 +1,11 @@
 package top.mcfpp.nbt.tags.primitive;
 
-import top.mcfpp.nbt.tags.TagType;
 import top.mcfpp.nbt.visitors.StringTagVisitor;
 import top.mcfpp.nbt.visitors.TagVisitor;
 
 public record IntTag(int value) implements NumericTag {
-	private static final int SELF_SIZE_IN_BYTES = 12;
-	public static final TagType<IntTag> TYPE = new TagType.StaticSize<IntTag>() {
-
-		@Override
-		public int size() {
-			return 4;
-		}
-
-		@Override
-		public String getName() {
-			return "INT";
-		}
-
-		@Override
-		public String getPrettyName() {
-			return "TAG_Int";
-		}
-	};
-
-    @Deprecated(
-            forRemoval = true
-    )
-    public IntTag {
-    }
-
 	public static IntTag valueOf(int i) {
 		return i >= Cache.LOW && i <= Cache.HIGH ? Cache.cache[i - Cache.LOW] : new IntTag(i);
-	}
-
-	@Override
-	public int sizeInBytes() {
-		return SELF_SIZE_IN_BYTES;
-	}
-
-	@Override
-	public byte getId() {
-		return TAG_INT;
-	}
-
-	@Override
-	public TagType<IntTag> getType() {
-		return TYPE;
 	}
 
 	public IntTag copy() {

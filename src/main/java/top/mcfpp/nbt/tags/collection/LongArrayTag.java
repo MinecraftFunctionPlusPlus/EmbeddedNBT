@@ -2,7 +2,6 @@ package top.mcfpp.nbt.tags.collection;
 
 import org.apache.commons.lang3.ArrayUtils;
 import top.mcfpp.nbt.tags.Tag;
-import top.mcfpp.nbt.tags.TagType;
 import top.mcfpp.nbt.tags.primitive.LongTag;
 import top.mcfpp.nbt.tags.primitive.NumericTag;
 import top.mcfpp.nbt.visitors.StringTagVisitor;
@@ -12,39 +11,10 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public final class LongArrayTag implements CollectionTag {
-	private static final int SELF_SIZE_IN_BYTES = 24;
-	public static final TagType<LongArrayTag> TYPE = new TagType.VariableSize<LongArrayTag>() {
-
-		@Override
-		public String getName() {
-			return "LONG[]";
-		}
-
-		@Override
-		public String getPrettyName() {
-			return "TAG_Long_Array";
-		}
-	};
 	private long[] data;
 
 	public LongArrayTag(long[] ls) {
 		this.data = ls;
-	}
-
-
-	@Override
-	public int sizeInBytes() {
-		return SELF_SIZE_IN_BYTES + 8 * this.data.length;
-	}
-
-	@Override
-	public byte getId() {
-		return TAG_LONG_ARRAY;
-	}
-
-	@Override
-	public TagType<LongArrayTag> getType() {
-		return TYPE;
 	}
 
 	@Override
@@ -99,7 +69,7 @@ public final class LongArrayTag implements CollectionTag {
 	@Override
 	public boolean addTag(int i, Tag tag) {
 		if (tag instanceof NumericTag numericTag) {
-			this.data = ArrayUtils.add(this.data, i, numericTag.longValue());
+			this.data = ArrayUtils.insert(i, this.data, numericTag.longValue());
 			return true;
 		} else {
 			return false;

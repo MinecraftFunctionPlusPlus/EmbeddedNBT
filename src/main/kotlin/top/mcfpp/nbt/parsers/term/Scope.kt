@@ -3,6 +3,7 @@ package top.mcfpp.nbt.parsers.term
 import com.google.common.annotations.VisibleForTesting
 import top.mcfpp.utils.Math.growByHalf
 
+@Suppress("UNCHECKED_CAST")
 class Scope {
     private var stack = arrayOfNulls<Any>(128)
     private var topEntryKeyIndex = 0

@@ -2,7 +2,6 @@ package top.mcfpp.nbt.tags.collection;
 
 import org.apache.commons.lang3.ArrayUtils;
 import top.mcfpp.nbt.tags.Tag;
-import top.mcfpp.nbt.tags.TagType;
 import top.mcfpp.nbt.tags.primitive.ByteTag;
 import top.mcfpp.nbt.tags.primitive.NumericTag;
 import top.mcfpp.nbt.visitors.StringTagVisitor;
@@ -12,38 +11,10 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public final class ByteArrayTag implements CollectionTag {
-	private static final int SELF_SIZE_IN_BYTES = 24;
-	public static final TagType<ByteArrayTag> TYPE = new TagType.VariableSize<ByteArrayTag>() {
-
-		@Override
-		public String getName() {
-			return "BYTE[]";
-		}
-
-		@Override
-		public String getPrettyName() {
-			return "TAG_Byte_Array";
-		}
-	};
 	private byte[] data;
 
 	public ByteArrayTag(byte[] bs) {
 		this.data = bs;
-	}
-
-	@Override
-	public int sizeInBytes() {
-		return SELF_SIZE_IN_BYTES + this.data.length;
-	}
-
-	@Override
-	public byte getId() {
-		return TAG_BYTE_ARRAY;
-	}
-
-	@Override
-	public TagType<ByteArrayTag> getType() {
-		return TYPE;
 	}
 
 	@Override
@@ -99,7 +70,7 @@ public final class ByteArrayTag implements CollectionTag {
 	@Override
 	public boolean addTag(int i, Tag tag) {
 		if (tag instanceof NumericTag numericTag) {
-			this.data = ArrayUtils.add(this.data, i, numericTag.byteValue());
+			this.data = ArrayUtils.insert(i, this.data, numericTag.byteValue());
 			return true;
 		} else {
 			return false;

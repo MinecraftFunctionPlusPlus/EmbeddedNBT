@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package top.mcfpp.nbt.parsers.term
 
 import top.mcfpp.nbt.parsers.rules.Rule
@@ -5,6 +7,7 @@ import top.mcfpp.nbt.parsers.rules.Rule.SimpleRuleAction
 import top.mcfpp.nbt.parsers.state.ParseState
 import java.util.*
 
+@Suppress("UNCHECKED_CAST")
 class Dictionary {
     private val terms: MutableMap<Atom<*>, Entry<*>> = IdentityHashMap()
 

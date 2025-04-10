@@ -1,5 +1,6 @@
 package top.mcfpp.nbt.tags.collection;
 
+import org.jetbrains.annotations.NotNull;
 import top.mcfpp.nbt.tags.Tag;
 
 import java.util.Iterator;
@@ -24,6 +25,7 @@ public sealed interface CollectionTag extends Iterable<Tag>, Tag permits ListTag
 		return this.size() == 0;
 	}
 
+	@NotNull
 	default Iterator<Tag> iterator() {
 		return new Iterator<Tag>() {
 			private int index;

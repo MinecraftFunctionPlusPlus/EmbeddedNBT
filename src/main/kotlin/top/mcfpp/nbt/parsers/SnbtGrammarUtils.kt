@@ -10,6 +10,7 @@ import top.mcfpp.nbt.parsers.term.TerminalCharacters
 import java.util.*
 import java.util.regex.Pattern
 
+@Suppress("UNCHECKED_CAST")
 object SnbtGrammarUtils {
     @JvmField
     val HEX_ESCAPE: HexFormat = HexFormat.of().withUpperCase()

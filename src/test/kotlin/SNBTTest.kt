@@ -1,6 +1,5 @@
 import org.junit.jupiter.api.Test
 import top.mcfpp.nbt.*
-import top.mcfpp.nbt.parsers.Parser
 import top.mcfpp.nbt.tags.CompoundTag
 import top.mcfpp.nbt.tags.collection.ListTag
 import top.mcfpp.nbt.tags.primitive.IntTag
@@ -14,16 +13,16 @@ class SNBTTest {
     @Test
     fun testNBTtoSNBT(){
         val tag = CompoundTag().apply {
-            putString("tag","string")
-            putInt("value_int",1)
-            putShort("value_short",1)
-            putByte("value_byte",1)
-            putFloat("value_float",1.0f)
-            putDouble("value_double",1.0)
-            putBoolean("value_bool",true)
-            putLongArray("array_long", longArrayOf(1,2,3,4))
-            putIntArray("array_int", intArrayOf(1,2,3,4))
-            putByteArray("array_byte", byteArrayOf(1,2,3,4))
+            put("tag","string")
+            put("value_int",1)
+            put("value_short",1)
+            put("value_byte",1)
+            put("value_float",1.0f)
+            put("value_double",1.0)
+            put("value_bool",true)
+            put("array_long", longArrayOf(1,2,3,4))
+            put("array_int", intArrayOf(1,2,3,4))
+            put("array_byte", byteArrayOf(1,2,3,4))
             put("list", ListTag().apply {
                 add(IntTag.valueOf(1))
                 add(IntTag.valueOf(2))

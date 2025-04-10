@@ -20,8 +20,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public final class NbtUtils {
-	private NbtUtils() {
-	}
+	private NbtUtils() {}
 
 	@VisibleForTesting
 	public static boolean compareNbt(@Nullable Tag tag, @Nullable Tag tag2, boolean bl) {
@@ -102,10 +101,8 @@ public final class NbtUtils {
 
 						if (k % 16 == 0 && k / 16 > 0) {
 							stringBuilder.append('\n');
-							if (k < bs.length) {
-								indent(i + 1, stringBuilder);
-							}
-						} else if (k != 0) {
+                            indent(i + 1, stringBuilder);
+                        } else if (k != 0) {
 							stringBuilder.append(' ');
 						}
 
@@ -162,10 +159,8 @@ public final class NbtUtils {
 
 						if (o % 16 == 0 && o / 16 > 0) {
 							stringBuilder.append('\n');
-							if (o < is.length) {
-								indent(i + 1, stringBuilder);
-							}
-						} else if (o != 0) {
+                            indent(i + 1, stringBuilder);
+                        } else if (o != 0) {
 							stringBuilder.append(' ');
 						}
 
@@ -228,10 +223,8 @@ public final class NbtUtils {
 
 						if (t % 16 == 0 && t / 16 > 0) {
 							stringBuilder.append('\n');
-							if (t < ls.length) {
-								indent(i + 1, stringBuilder);
-							}
-						} else if (t != 0) {
+                            indent(i + 1, stringBuilder);
+                        } else if (t != 0) {
 							stringBuilder.append(' ');
 						}
 
@@ -253,13 +246,10 @@ public final class NbtUtils {
 		int j = stringBuilder.lastIndexOf("\n") + 1;
 		int k = stringBuilder.length() - j;
 
-		for (int l = 0; l < 2 * i - k; l++) {
-			stringBuilder.append(' ');
-		}
+        stringBuilder.append(" ".repeat(Math.max(0, 2 * i - k)));
 
 		return stringBuilder;
 	}
-
 
 	public static String nbtToSnbt(CompoundTag compoundTag) {
 		return new SnbtPrinterTagVisitor().visit(compoundTag);

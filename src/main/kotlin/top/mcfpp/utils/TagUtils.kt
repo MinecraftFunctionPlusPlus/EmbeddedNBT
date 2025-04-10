@@ -26,17 +26,17 @@ object TagUtils {
         }
     }
     @JvmStatic
-    fun `list=`(value:List<*>):ListTag{
+    fun `list=`(value:List<*>): ListTag {
         return ListTag.fromStream(value.map { `tag=`(it) }.stream())
     }
 
     @JvmStatic
-    fun `list=`(vararg value:Any):ListTag{
+    fun `list=`(vararg value:Any): ListTag {
         return ListTag.fromStream(value.map { `tag=`(it) }.stream())
     }
 
     @JvmStatic
-    fun `list=`(block:(ListTag)->Unit):ListTag{
+    fun `list=`(block:(ListTag)->Unit): ListTag {
         return ListTag().apply(block)
     }
 
