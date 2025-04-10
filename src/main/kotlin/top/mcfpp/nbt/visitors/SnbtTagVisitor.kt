@@ -9,11 +9,11 @@ import top.mcfpp.nbt.tags.collection.ListTag
 import top.mcfpp.nbt.tags.collection.LongArrayTag
 import top.mcfpp.nbt.tags.primitive.*
 
-class SnbtTagVisitor: TagVisitor {
+open class SnbtTagVisitor: TagVisitor {
 
     private var result = ""
 
-    fun visit(tag: Tag?): String {
+    open fun visit(tag: Tag?): String {
         tag!!.accept(this)
         return this.result
     }
@@ -138,14 +138,14 @@ class SnbtTagVisitor: TagVisitor {
 
 
     companion object {
-        private const val NAME_VALUE_SEPARATOR = ":"
-        private const val ELEMENT_SEPARATOR = ","
-        private const val LIST_OPEN = "["
-        private const val LIST_CLOSE = "]"
-        private const val LIST_TYPE_SEPARATOR = ";"
-        private const val ELEMENT_SPACING = " "
-        private const val STRUCT_OPEN = "{"
-        private const val STRUCT_CLOSE = "}"
-        private const val NEWLINE = "\n"
+        const val NAME_VALUE_SEPARATOR = ":"
+        const val ELEMENT_SEPARATOR = ","
+        const val LIST_OPEN = "["
+        const val LIST_CLOSE = "]"
+        const val LIST_TYPE_SEPARATOR = ";"
+        const val ELEMENT_SPACING = " "
+        const val STRUCT_OPEN = "{"
+        const val STRUCT_CLOSE = "}"
+        const val NEWLINE = "\n"
     }
 }

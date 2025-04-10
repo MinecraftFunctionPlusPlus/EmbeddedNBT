@@ -16,89 +16,16 @@ import top.mcfpp.utils.Functional.make
 import java.util.*
 import java.util.regex.Pattern
 
-class SnbtPrinterTagVisitor @JvmOverloads constructor(
+open class SnbtPrinterTagVisitor @JvmOverloads constructor(
     private val indentation: String = "    ",
     private val depth: Int = 0,
     private val path: MutableList<String?> = Lists.newArrayList()
-) : TagVisitor {
+) : SnbtTagVisitor()  {
     private var result = ""
 
-    fun visit(tag: Tag?): String {
+    override fun visit(tag: Tag?): String {
         tag!!.accept(this)
         return this.result
-    }
-
-    override fun visitString(stringTag: StringTag) {
-        this.result = StringTag.quoteAndEscape(stringTag.value)
-    }
-
-    override fun visitByte(byteTag: ByteTag) {
-        this.result = byteTag.value.toString() + "b"
-    }
-
-    override fun visitShort(shortTag: ShortTag) {
-        this.result = shortTag.value.toString() + "s"
-    }
-
-    override fun visitInt(intTag: IntTag) {
-        this.result = intTag.value.toString()
-    }
-
-    override fun visitLong(longTag: LongTag) {
-        this.result = longTag.value.toString() + "L"
-    }
-
-    override fun visitFloat(floatTag: FloatTag) {
-        this.result = floatTag.value.toString() + "f"
-    }
-
-    override fun visitDouble(doubleTag: DoubleTag) {
-        this.result = doubleTag.value.toString() + "d"
-    }
-
-    override fun visitByteArray(byteArrayTag: ByteArrayTag) {
-        val stringBuilder = StringBuilder(LIST_OPEN).append("B").append(LIST_TYPE_SEPARATOR)
-        val bs = byteArrayTag.asByteArray
-
-        for (i in bs.indices) {
-            stringBuilder.append(ELEMENT_SPACING).append(bs[i].toInt()).append("B")
-            if (i != bs.size - 1) {
-                stringBuilder.append(ELEMENT_SEPARATOR)
-            }
-        }
-
-        stringBuilder.append(LIST_CLOSE)
-        this.result = stringBuilder.toString()
-    }
-
-    override fun visitIntArray(intArrayTag: IntArrayTag) {
-        val stringBuilder = StringBuilder(LIST_OPEN).append("I").append(LIST_TYPE_SEPARATOR)
-        val `is` = intArrayTag.asIntArray
-
-        for (i in `is`.indices) {
-            stringBuilder.append(ELEMENT_SPACING).append(`is`[i])
-            if (i != `is`.size - 1) {
-                stringBuilder.append(ELEMENT_SEPARATOR)
-            }
-        }
-
-        stringBuilder.append(LIST_CLOSE)
-        this.result = stringBuilder.toString()
-    }
-
-    override fun visitLongArray(longArrayTag: LongArrayTag) {
-        val stringBuilder = StringBuilder(LIST_OPEN).append("L").append(LIST_TYPE_SEPARATOR)
-        val ls = longArrayTag.asLongArray
-
-        for (i in ls.indices) {
-            stringBuilder.append(ELEMENT_SPACING).append(ls[i]).append("L")
-            if (i != ls.size - 1) {
-                stringBuilder.append(ELEMENT_SEPARATOR)
-            }
-        }
-
-        stringBuilder.append(LIST_CLOSE)
-        this.result = stringBuilder.toString()
     }
 
     override fun visitList(listTag: ListTag) {
@@ -208,8 +135,6 @@ class SnbtPrinterTagVisitor @JvmOverloads constructor(
         return java.lang.String.join(".", this.path)
     }
 
-    override fun visitEnd(endTag: EndTag) {
-    }
 
     companion object {
         private val KEY_ORDER: Map<String, List<String>> =
@@ -222,15 +147,7 @@ class SnbtPrinterTagVisitor @JvmOverloads constructor(
         private val NO_INDENTATION: Set<String> =
             Sets.newHashSet("{}.size.[]", "{}.data.[].{}", "{}.palette.[].{}", "{}.entities.[].{}")
         private val SIMPLE_VALUE: Pattern = Pattern.compile("[A-Za-z0-9._+-]+")
-        private const val NAME_VALUE_SEPARATOR = ':'.toString()
-        private const val ELEMENT_SEPARATOR = ','.toString()
-        private const val LIST_OPEN = "["
-        private const val LIST_CLOSE = "]"
-        private const val LIST_TYPE_SEPARATOR = ";"
-        private const val ELEMENT_SPACING = " "
-        private const val STRUCT_OPEN = "{"
-        private const val STRUCT_CLOSE = "}"
-        private const val NEWLINE = "\n"
+
         protected fun handleEscapePretty(string: String): String {
             return if (SIMPLE_VALUE.matcher(string).matches()) string else StringTag.quoteAndEscape(string)
         }
