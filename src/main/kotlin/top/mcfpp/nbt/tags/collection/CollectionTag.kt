@@ -1,50 +1,55 @@
-package top.mcfpp.nbt.tags.collection;
+package top.mcfpp.nbt.tags.collection
 
-import org.jetbrains.annotations.NotNull;
-import top.mcfpp.nbt.tags.Tag;
+import top.mcfpp.nbt.tags.Tag
+import java.util.stream.Stream
+import java.util.stream.StreamSupport
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+interface CollectionTag<T : Tag> : Iterable<T>, Tag {
+    fun clear()
 
-public sealed interface CollectionTag<T extends Tag> extends Iterable<T>, Tag permits ListTag, ByteArrayTag, IntArrayTag, LongArrayTag {
-	void clear();
+    operator fun set(index: Int, tag: T): T
 
-	T set(int i, T tag);
+    fun add(index: Int, tag: T)
 
-	void add(int i, T tag);
+    fun removeAt(index: Int): T
 
-	T remove(int i);
+    operator fun get(index: Int): T
 
-	T get(int i);
+    val size: Int
 
-	int size();
+    val isEmpty: Boolean
+        get() = this.size == 0
 
-	default boolean isEmpty() {
-		return this.size() == 0;
-	}
+    override fun iterator(): MutableIterator<T> {
+        return object : MutableIterator<T> {
+            private var index = 0
+            private var lastReturnedIndex = -1 // 记录最近返回的元素索引，用于 remove()
 
-	@NotNull
-	default Iterator<T> iterator() {
-		return new Iterator<>() {
-			private int index;
+            override fun hasNext(): Boolean {
+                return this.index < this@CollectionTag.size
+            }
 
-			public boolean hasNext() {
-				return this.index < CollectionTag.this.size();
-			}
+            override fun next(): T {
+                if (!this.hasNext()) {
+                    throw NoSuchElementException()
+                } else {
+                    lastReturnedIndex = index
+                    return this@CollectionTag.get(index++)
+                }
+            }
 
-			public T next() {
-				if (!this.hasNext()) {
-					throw new NoSuchElementException();
-				} else {
-					return CollectionTag.this.get(this.index++);
-				}
-			}
-		};
-	}
+            override fun remove() {
+                if (lastReturnedIndex == -1) {
+                    throw IllegalStateException("next() must be called before remove()")
+                }
+                this@CollectionTag.removeAt(lastReturnedIndex)
+                index-- // 因为删除了一个元素，索引回退
+                lastReturnedIndex = -1 // 防止重复 remove()
+            }
+        }
+    }
 
-	default Stream<T> stream() {
-		return StreamSupport.stream(this.spliterator(), false);
-	}
+    fun stream(): Stream<T> {
+        return StreamSupport.stream(this.spliterator(), false)
+    }
 }

@@ -1,84 +1,78 @@
-package top.mcfpp.nbt;
+package top.mcfpp.nbt
 
-import com.google.common.annotations.VisibleForTesting;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import org.jetbrains.annotations.Nullable;
-import top.mcfpp.nbt.parsers.Parser;
-import top.mcfpp.nbt.tags.CompoundTag;
-import top.mcfpp.nbt.tags.Tag;
-import top.mcfpp.nbt.tags.collection.ListTag;
-import top.mcfpp.nbt.visitors.SnbtPrinterTagVisitor;
-import top.mcfpp.nbt.visitors.SnbtTagVisitor;
+import com.google.common.annotations.VisibleForTesting
+import com.mojang.brigadier.exceptions.CommandSyntaxException
+import top.mcfpp.nbt.parsers.Parser.parseCompoundFully
+import top.mcfpp.nbt.tags.CompoundTag
+import top.mcfpp.nbt.tags.Tag
+import top.mcfpp.nbt.tags.collection.ListTag
+import top.mcfpp.nbt.visitors.SnbtPrinterTagVisitor
+import top.mcfpp.nbt.visitors.SnbtTagVisitor
 
-import java.util.Map.Entry;
+object NbtUtils {
+    @VisibleForTesting
+    fun compareNbt(tag: Tag?, tag2: Tag?, bl: Boolean): Boolean {
+        if (tag === tag2) {
+            return true
+        } else if (tag == null) {
+            return true
+        } else if (tag2 == null) {
+            return false
+        } else if (tag.javaClass != tag2.javaClass) {
+            return false
+        } else if (tag is CompoundTag) {
+            val compoundTag2 = tag2 as CompoundTag
+            if (compoundTag2.size() < tag.size()) {
+                return false
+            } else {
+                for ((key, tag3) in tag.entrySet()) {
+                    if (!compareNbt(tag3, compoundTag2.get(key), bl)) {
+                        return false
+                    }
+                }
 
-public final class NbtUtils {
-	private NbtUtils() {}
+                return true
+            }
+        } else if (tag is ListTag && bl) {
+            val listTag2 = tag2 as ListTag
+            if (tag.isEmpty()) {
+                return listTag2.isEmpty()
+            } else if (listTag2.size < tag.size) {
+                return false
+            } else {
+                for (tag4 in tag) {
+                    var bl2 = false
 
-	@VisibleForTesting
-	public static boolean compareNbt(@Nullable Tag tag, @Nullable Tag tag2, boolean bl) {
-		if (tag == tag2) {
-			return true;
-		} else if (tag == null) {
-			return true;
-		} else if (tag2 == null) {
-			return false;
-		} else if (!tag.getClass().equals(tag2.getClass())) {
-			return false;
-		} else if (tag instanceof CompoundTag compoundTag) {
-			CompoundTag compoundTag2 = (CompoundTag)tag2;
-			if (compoundTag2.size() < compoundTag.size()) {
-				return false;
-			} else {
-				for (Entry<String, Tag> entry : compoundTag.entrySet()) {
-					Tag tag3 = entry.getValue();
-					if (!compareNbt(tag3, compoundTag2.get(entry.getKey()), bl)) {
-						return false;
-					}
-				}
+                    for (tag5 in listTag2) {
+                        if (compareNbt(tag4, tag5, bl)) {
+                            bl2 = true
+                            break
+                        }
+                    }
 
-				return true;
-			}
-		} else if (tag instanceof ListTag listTag && bl) {
-			ListTag listTag2 = (ListTag)tag2;
-			if (listTag.isEmpty()) {
-				return listTag2.isEmpty();
-			} else if (listTag2.size() < listTag.size()) {
-				return false;
-			} else {
-				for (Tag tag4 : listTag) {
-					boolean bl2 = false;
+                    if (!bl2) {
+                        return false
+                    }
+                }
 
-					for (Tag tag5 : listTag2) {
-						if (compareNbt(tag4, tag5, bl)) {
-							bl2 = true;
-							break;
-						}
-					}
+                return true
+            }
+        } else {
+            return tag == tag2
+        }
+    }
 
-					if (!bl2) {
-						return false;
-					}
-				}
+    fun nbtToSnbtPretty(compoundTag: CompoundTag?): String {
+        return SnbtPrinterTagVisitor().visit(compoundTag)
+    }
 
-				return true;
-			}
-		} else {
-			return tag.equals(tag2);
-		}
-	}
+    fun nbtToSnbt(compoundTag: CompoundTag?): String {
+        return SnbtTagVisitor().visit(compoundTag)
+    }
 
-	public static String nbtToSnbtPretty(CompoundTag compoundTag) {
-		return new SnbtPrinterTagVisitor().visit(compoundTag);
-	}
-
-	public static String nbtToSnbt(CompoundTag compoundTag) {
-		return new SnbtTagVisitor().visit(compoundTag);
-	}
-
-	public static CompoundTag snbtToNbt(String string) throws CommandSyntaxException {
-		return Parser.parseCompoundFully(string);
-	}
-
+    @Throws(CommandSyntaxException::class)
+    fun snbtToNbt(string: String?): CompoundTag {
+        return parseCompoundFully(string)
+    }
 }
 

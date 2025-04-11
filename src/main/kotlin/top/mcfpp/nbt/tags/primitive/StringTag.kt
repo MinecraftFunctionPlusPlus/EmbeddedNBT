@@ -1,86 +1,84 @@
-package top.mcfpp.nbt.tags.primitive;
+package top.mcfpp.nbt.tags.primitive
 
-import top.mcfpp.nbt.visitors.StringTagVisitor;
-import top.mcfpp.nbt.visitors.TagVisitor;
+import top.mcfpp.nbt.parsers.SnbtGrammarUtils.escapeControlCharacters
+import top.mcfpp.nbt.visitors.StringTagVisitor
+import top.mcfpp.nbt.visitors.TagVisitor
+import java.util.*
 
-import java.util.Optional;
+@JvmRecord
+data class StringTag(val value: String) : PrimitiveTag {
+    override fun toString(): String {
+        val stringTagVisitor = StringTagVisitor()
+        stringTagVisitor.visitString(this)
+        return stringTagVisitor.build()
+    }
 
-import static top.mcfpp.nbt.parsers.SnbtGrammarUtils.escapeControlCharacters;
+    override fun copy(): StringTag {
+        return this
+    }
 
-public record StringTag(String value) implements PrimitiveTag {
-	private static final StringTag EMPTY = new StringTag("");
-	private static final char DOUBLE_QUOTE = '"';
-	private static final char SINGLE_QUOTE = '\'';
-	private static final char ESCAPE = '\\';
-	private static final char NOT_SET = '\u0000';
+    override fun asString(): Optional<String> {
+        return Optional.of(this.value)
+    }
 
-	public static StringTag valueOf(String string) {
-		return string.isEmpty() ? EMPTY : new StringTag(string);
-	}
+    override fun accept(tagVisitor: TagVisitor) {
+        tagVisitor.visitString(this)
+    }
 
-	@Override
-	public String toString() {
-		StringTagVisitor stringTagVisitor = new StringTagVisitor();
-		stringTagVisitor.visitString(this);
-		return stringTagVisitor.build();
-	}
+    companion object {
+        private val EMPTY = StringTag("")
+        private const val DOUBLE_QUOTE = '"'
+        private const val SINGLE_QUOTE = '\''
+        private const val ESCAPE = '\\'
+        private const val NOT_SET = '\u0000'
 
-	public StringTag copy() {
-		return this;
-	}
+        @JvmStatic
+		fun valueOf(string: String): StringTag {
+            return if (string.isEmpty()) EMPTY else StringTag(string)
+        }
 
-	@Override
-	public Optional<String> asString() {
-		return Optional.of(this.value);
-	}
+        fun quoteAndEscape(string: String): String {
+            val stringBuilder = StringBuilder()
+            quoteAndEscape(string, stringBuilder)
+            return stringBuilder.toString()
+        }
 
-	@Override
-	public void accept(TagVisitor tagVisitor) {
-		tagVisitor.visitString(this);
-	}
+        fun quoteAndEscape(string: String, stringBuilder: StringBuilder) {
+            val i = stringBuilder.length
+            stringBuilder.append(' ')
+            var c = 0.toChar()
 
-	public static String quoteAndEscape(String string) {
-		StringBuilder stringBuilder = new StringBuilder();
-		quoteAndEscape(string, stringBuilder);
-		return stringBuilder.toString();
-	}
+            for (j in 0 until string.length) {
+                val d = string[j]
+                if (d == ESCAPE) {
+                    stringBuilder.append("\\\\")
+                } else if (d != DOUBLE_QUOTE && d != SINGLE_QUOTE) {
+                    val string2 = escapeControlCharacters(d)
+                    if (string2 != null) {
+                        stringBuilder.append(ESCAPE)
+                        stringBuilder.append(string2)
+                    } else {
+                        stringBuilder.append(d)
+                    }
+                } else {
+                    if (c.code == 0) {
+                        c = (if (d == DOUBLE_QUOTE) 39 else 34).toChar()
+                    }
 
-	public static void quoteAndEscape(String string, StringBuilder stringBuilder) {
-		int i = stringBuilder.length();
-		stringBuilder.append(' ');
-		char c = 0;
+                    if (c == d) {
+                        stringBuilder.append(ESCAPE)
+                    }
 
-		for (int j = 0; j < string.length(); j++) {
-			char d = string.charAt(j);
-			if (d == ESCAPE) {
-				stringBuilder.append("\\\\");
-			} else if (d != DOUBLE_QUOTE && d != SINGLE_QUOTE) {
-				String string2 = escapeControlCharacters(d);
-				if (string2 != null) {
-					stringBuilder.append(ESCAPE);
-					stringBuilder.append(string2);
-				} else {
-					stringBuilder.append(d);
-				}
-			} else {
-				if (c == 0) {
-					c = (char)(d == DOUBLE_QUOTE ? 39 : 34);
-				}
+                    stringBuilder.append(d)
+                }
+            }
 
-				if (c == d) {
-					stringBuilder.append(ESCAPE);
-				}
+            if (c.code == 0) {
+                c = DOUBLE_QUOTE
+            }
 
-				stringBuilder.append(d);
-			}
-		}
-
-		if (c == 0) {
-			c = DOUBLE_QUOTE;
-		}
-
-		stringBuilder.setCharAt(i, c);
-		stringBuilder.append(c);
-	}
-
+            stringBuilder.setCharAt(i, c)
+            stringBuilder.append(c)
+        }
+    }
 }

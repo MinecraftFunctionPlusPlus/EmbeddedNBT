@@ -1,71 +1,69 @@
-package top.mcfpp.nbt.tags;
+package top.mcfpp.nbt.tags
 
-import top.mcfpp.nbt.visitors.TagVisitor;
-import top.mcfpp.nbt.tags.collection.ListTag;
+import top.mcfpp.nbt.tags.collection.ListTag
+import top.mcfpp.nbt.visitors.TagVisitor
+import java.util.*
 
-import java.util.Optional;
+interface Tag {
+    override fun toString(): String
 
-public interface Tag{
+    fun copy(): Tag
 
-	String toString();
+    fun accept(tagVisitor: TagVisitor)
 
-	Tag copy();
+    fun asString(): Optional<String> {
+        return Optional.empty()
+    }
 
-	void accept(TagVisitor tagVisitor);
+    fun asNumber(): Optional<Number> {
+        return Optional.empty()
+    }
 
-	default Optional<String> asString() {
-		return Optional.empty();
-	}
+    fun asByte(): Optional<Byte> {
+        return asNumber().map { obj: Number -> obj.toByte() }
+    }
 
-	default Optional<Number> asNumber() {
-		return Optional.empty();
-	}
+    fun asShort(): Optional<Short> {
+        return asNumber().map { obj: Number -> obj.toShort() }
+    }
 
-	default Optional<Byte> asByte() {
-		return this.asNumber().map(Number::byteValue);
-	}
+    fun asInt(): Optional<Int> {
+        return asNumber().map { obj: Number -> obj.toInt() }
+    }
 
-	default Optional<Short> asShort() {
-		return this.asNumber().map(Number::shortValue);
-	}
+    fun asLong(): Optional<Long> {
+        return asNumber().map { obj: Number -> obj.toLong() }
+    }
 
-	default Optional<Integer> asInt() {
-		return this.asNumber().map(Number::intValue);
-	}
+    fun asFloat(): Optional<Float> {
+        return asNumber().map { obj: Number -> obj.toFloat() }
+    }
 
-	default Optional<Long> asLong() {
-		return this.asNumber().map(Number::longValue);
-	}
+    fun asDouble(): Optional<Double> {
+        return asNumber().map { obj: Number -> obj.toDouble() }
+    }
 
-	default Optional<Float> asFloat() {
-		return this.asNumber().map(Number::floatValue);
-	}
+    fun asBoolean(): Optional<Boolean> {
+        return asByte().map { byte_: Byte -> byte_.toInt() != 0 }
+    }
 
-	default Optional<Double> asDouble() {
-		return this.asNumber().map(Number::doubleValue);
-	}
+    fun asByteArray(): Optional<ByteArray> {
+        return Optional.empty()
+    }
 
-	default Optional<Boolean> asBoolean() {
-		return this.asByte().map(byte_ -> byte_ != 0);
-	}
+    fun asIntArray(): Optional<IntArray> {
+        return Optional.empty()
+    }
 
-	default Optional<byte[]> asByteArray() {
-		return Optional.empty();
-	}
+    fun asLongArray(): Optional<LongArray> {
+        return Optional.empty()
+    }
 
-	default Optional<int[]> asIntArray() {
-		return Optional.empty();
-	}
+    fun asCompound(): Optional<CompoundTag> {
+        return Optional.empty()
+    }
 
-	default Optional<long[]> asLongArray() {
-		return Optional.empty();
-	}
-
-	default Optional<CompoundTag> asCompound() {
-		return Optional.empty();
-	}
-
-	default Optional<ListTag> asList() {
-		return Optional.empty();
-	}
+    fun asList(): Optional<ListTag> {
+        return Optional.empty()
+    }
 }

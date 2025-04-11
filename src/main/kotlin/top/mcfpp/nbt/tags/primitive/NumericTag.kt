@@ -1,59 +1,51 @@
-package top.mcfpp.nbt.tags.primitive;
+package top.mcfpp.nbt.tags.primitive
 
-import java.util.Optional;
+import java.util.*
 
-public sealed interface NumericTag extends PrimitiveTag permits ByteTag, ShortTag, IntTag, LongTag, FloatTag, DoubleTag {
-	byte byteValue();
+interface NumericTag : PrimitiveTag {
+    fun byteValue(): Byte
 
-	short shortValue();
+    fun shortValue(): Short
 
-	int intValue();
+    fun intValue(): Int
 
-	long longValue();
+    fun longValue(): Long
 
-	float floatValue();
+    fun floatValue(): Float
 
-	double doubleValue();
+    fun doubleValue(): Double
 
-	Number box();
+    fun box(): Number
 
-	@Override
-	default Optional<Number> asNumber() {
-		return Optional.of(this.box());
-	}
+    override fun asNumber(): Optional<Number> {
+        return Optional.of(this.box())
+    }
 
-	@Override
-	default Optional<Byte> asByte() {
-		return Optional.of(this.byteValue());
-	}
+    override fun asByte(): Optional<Byte> {
+        return Optional.of(this.byteValue())
+    }
 
-	@Override
-	default Optional<Short> asShort() {
-		return Optional.of(this.shortValue());
-	}
+    override fun asShort(): Optional<Short> {
+        return Optional.of(this.shortValue())
+    }
 
-	@Override
-	default Optional<Integer> asInt() {
-		return Optional.of(this.intValue());
-	}
+    override fun asInt(): Optional<Int> {
+        return Optional.of(this.intValue())
+    }
 
-	@Override
-	default Optional<Long> asLong() {
-		return Optional.of(this.longValue());
-	}
+    override fun asLong(): Optional<Long> {
+        return Optional.of(this.longValue())
+    }
 
-	@Override
-	default Optional<Float> asFloat() {
-		return Optional.of(this.floatValue());
-	}
+    override fun asFloat(): Optional<Float> {
+        return Optional.of(this.floatValue())
+    }
 
-	@Override
-	default Optional<Double> asDouble() {
-		return Optional.of(this.doubleValue());
-	}
+    override fun asDouble(): Optional<Double> {
+        return Optional.of(this.doubleValue())
+    }
 
-	@Override
-	default Optional<Boolean> asBoolean() {
-		return Optional.of(this.byteValue() != 0);
-	}
+    override fun asBoolean(): Optional<Boolean> {
+        return Optional.of(byteValue().toInt() != 0)
+    }
 }

@@ -1,26 +1,25 @@
-package top.mcfpp.nbt.tags;
+package top.mcfpp.nbt.tags
 
-import top.mcfpp.nbt.visitors.StringTagVisitor;
-import top.mcfpp.nbt.visitors.TagVisitor;
+import top.mcfpp.nbt.visitors.StringTagVisitor
+import top.mcfpp.nbt.visitors.TagVisitor
 
-public final class EndTag implements Tag {
-	public static final EndTag INSTANCE = new EndTag();
+class EndTag private constructor() : Tag {
+    override fun toString(): String {
+        val stringTagVisitor = StringTagVisitor()
+        stringTagVisitor.visitEnd(this)
+        return stringTagVisitor.build()
+    }
 
-	private EndTag() {}
+    override fun copy(): EndTag {
+        return this
+    }
 
-	@Override
-	public String toString() {
-		StringTagVisitor stringTagVisitor = new StringTagVisitor();
-		stringTagVisitor.visitEnd(this);
-		return stringTagVisitor.build();
-	}
+    override fun accept(tagVisitor: TagVisitor) {
+        tagVisitor.visitEnd(this)
+    }
 
-	public EndTag copy() {
-		return this;
-	}
-
-	@Override
-	public void accept(TagVisitor tagVisitor) {
-		tagVisitor.visitEnd(this);
-	}
+    companion object {
+        @JvmField
+		val INSTANCE: EndTag = EndTag()
+    }
 }

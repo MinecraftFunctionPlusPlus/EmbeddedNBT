@@ -1,87 +1,65 @@
-package top.mcfpp.nbt.tags.collection;
+package top.mcfpp.nbt.tags.collection
 
-import org.apache.commons.lang3.ArrayUtils;
-import top.mcfpp.nbt.tags.Tag;
-import top.mcfpp.nbt.tags.primitive.IntTag;
-import top.mcfpp.nbt.tags.primitive.NumericTag;
-import top.mcfpp.nbt.visitors.StringTagVisitor;
-import top.mcfpp.nbt.visitors.TagVisitor;
+import org.apache.commons.lang3.ArrayUtils
+import top.mcfpp.nbt.tags.primitive.IntTag
+import top.mcfpp.nbt.visitors.StringTagVisitor
+import top.mcfpp.nbt.visitors.TagVisitor
+import java.util.*
 
-import java.util.Arrays;
-import java.util.Optional;
+class IntArrayTag(var asIntArray: IntArray) : CollectionTag<IntTag> {
+    override fun toString(): String {
+        val stringTagVisitor = StringTagVisitor()
+        stringTagVisitor.visitIntArray(this)
+        return stringTagVisitor.build()
+    }
 
-public final class IntArrayTag implements CollectionTag<IntTag> {
-	private int[] data;
+    override fun copy(): IntArrayTag {
+        val `is` = IntArray(asIntArray.size)
+        System.arraycopy(this.asIntArray, 0, `is`, 0, asIntArray.size)
+        return IntArrayTag(`is`)
+    }
 
-	public IntArrayTag(int[] is) {
-		this.data = is;
-	}
+    override fun equals(`object`: Any?): Boolean {
+        return this === `object` || `object` is IntArrayTag && asIntArray.contentEquals(`object`.asIntArray)
+    }
 
-	@Override
-	public String toString() {
-		StringTagVisitor stringTagVisitor = new StringTagVisitor();
-		stringTagVisitor.visitIntArray(this);
-		return stringTagVisitor.build();
-	}
+    override fun hashCode(): Int {
+        return asIntArray.contentHashCode()
+    }
 
-	public IntArrayTag copy() {
-		int[] is = new int[this.data.length];
-		System.arraycopy(this.data, 0, is, 0, this.data.length);
-		return new IntArrayTag(is);
-	}
+    override fun accept(tagVisitor: TagVisitor) {
+        tagVisitor.visitIntArray(this)
+    }
 
-	public boolean equals(Object object) {
-		return this == object || object instanceof IntArrayTag && Arrays.equals(this.data, ((IntArrayTag) object).data);
-	}
+    override val size:Int get() {
+        return asIntArray.size
+    }
 
-	public int hashCode() {
-		return Arrays.hashCode(this.data);
-	}
+    override operator fun get(index: Int): IntTag {
+        return IntTag.valueOf(asIntArray[index])
+    }
 
-	public int[] getAsIntArray() {
-		return this.data;
-	}
+    override operator fun set(index: Int, tag: IntTag): IntTag {
+        val j = asIntArray[index]
+        asIntArray[index] = tag.intValue()
+        return IntTag.valueOf(j)
+    }
 
-	@Override
-	public void accept(TagVisitor tagVisitor) {
-		tagVisitor.visitIntArray(this);
-	}
+    override fun add(index: Int, tag: IntTag) {
+        this.asIntArray = ArrayUtils.insert(index, this.asIntArray, tag.intValue())
+    }
 
-	@Override
-	public int size() {
-		return this.data.length;
-	}
+    override fun removeAt(index: Int): IntTag {
+        val j = asIntArray[index]
+        this.asIntArray = ArrayUtils.remove(this.asIntArray, index)
+        return IntTag.valueOf(j)
+    }
 
-	public IntTag get(int i) {
-		return IntTag.valueOf(this.data[i]);
-	}
+    override fun clear() {
+        this.asIntArray = IntArray(0)
+    }
 
-	@Override
-	public IntTag set(int i, IntTag tag) {
-		int j = this.data[i];
-		this.data[i] = tag.intValue();
-		return IntTag.valueOf(j);
-	}
-
-	@Override
-	public void add(int i, IntTag tag) {
-		this.data = ArrayUtils.insert(i, this.data, tag.intValue());
-	}
-
-	public IntTag remove(int i) {
-		int j = this.data[i];
-		this.data = ArrayUtils.remove(this.data, i);
-		return IntTag.valueOf(j);
-	}
-
-	@Override
-	public void clear() {
-		this.data = new int[0];
-	}
-
-	@Override
-	public Optional<int[]> asIntArray() {
-		return Optional.of(this.data);
-	}
-
+    override fun asIntArray(): Optional<IntArray> {
+        return Optional.of(this.asIntArray)
+    }
 }

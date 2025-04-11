@@ -1,63 +1,59 @@
-package top.mcfpp.nbt.tags.primitive;
+package top.mcfpp.nbt.tags.primitive
 
-import top.mcfpp.nbt.visitors.StringTagVisitor;
-import top.mcfpp.nbt.visitors.TagVisitor;
+import top.mcfpp.nbt.visitors.StringTagVisitor
+import top.mcfpp.nbt.visitors.TagVisitor
+import top.mcfpp.utils.Math.floor
 
-public record DoubleTag(double value) implements NumericTag {
-	public static final DoubleTag ZERO = new DoubleTag(0.0);
-	public static DoubleTag valueOf(double d) {
-		return d == 0.0 ? ZERO : new DoubleTag(d);
-	}
+@JvmRecord
+data class DoubleTag(val value: Double) : NumericTag {
+    override fun copy(): DoubleTag {
+        return this
+    }
 
-	public DoubleTag copy() {
-		return this;
-	}
+    override fun accept(tagVisitor: TagVisitor) {
+        tagVisitor.visitDouble(this)
+    }
 
-	@Override
-	public void accept(TagVisitor tagVisitor) {
-		tagVisitor.visitDouble(this);
-	}
+    override fun longValue(): Long {
+        return kotlin.math.floor(this.value).toLong()
+    }
 
-	@Override
-	public long longValue() {
-		return (long)Math.floor(this.value);
-	}
+    override fun intValue(): Int {
+        return floor(this.value)
+    }
 
-	@Override
-	public int intValue() {
-		return top.mcfpp.utils.Math.floor(this.value);
-	}
+    override fun shortValue(): Short {
+        return (floor(this.value) and 65535).toShort()
+    }
 
-	@Override
-	public short shortValue() {
-		return (short)(top.mcfpp.utils.Math.floor(this.value) & 65535);
-	}
+    override fun byteValue(): Byte {
+        return (floor(this.value) and 0xFF).toByte()
+    }
 
-	@Override
-	public byte byteValue() {
-		return (byte)(top.mcfpp.utils.Math.floor(this.value) & 0xFF);
-	}
+    override fun doubleValue(): Double {
+        return this.value
+    }
 
-	@Override
-	public double doubleValue() {
-		return this.value;
-	}
+    override fun floatValue(): Float {
+        return value.toFloat()
+    }
 
-	@Override
-	public float floatValue() {
-		return (float)this.value;
-	}
-
-	@Override
-	public Number box() {
-		return this.value;
-	}
+    override fun box(): Number {
+        return this.value
+    }
 
 
-	@Override
-	public String toString() {
-		StringTagVisitor stringTagVisitor = new StringTagVisitor();
-		stringTagVisitor.visitDouble(this);
-		return stringTagVisitor.build();
-	}
+    override fun toString(): String {
+        val stringTagVisitor = StringTagVisitor()
+        stringTagVisitor.visitDouble(this)
+        return stringTagVisitor.build()
+    }
+
+    companion object {
+        val ZERO: DoubleTag = DoubleTag(0.0)
+        @JvmStatic
+		fun valueOf(d: Double): DoubleTag {
+            return if (d == 0.0) ZERO else DoubleTag(d)
+        }
+    }
 }

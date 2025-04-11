@@ -1,63 +1,59 @@
-package top.mcfpp.nbt.tags.primitive;
+package top.mcfpp.nbt.tags.primitive
 
-import top.mcfpp.nbt.visitors.StringTagVisitor;
-import top.mcfpp.nbt.visitors.TagVisitor;
+import top.mcfpp.nbt.visitors.StringTagVisitor
+import top.mcfpp.nbt.visitors.TagVisitor
+import top.mcfpp.utils.Math.floor
 
-public record FloatTag(float value) implements NumericTag {
-	public static final FloatTag ZERO = new FloatTag(0.0F);
-	public static FloatTag valueOf(float f) {
-		return f == 0.0F ? ZERO : new FloatTag(f);
-	}
+@JvmRecord
+data class FloatTag(val value: Float) : NumericTag {
+    override fun copy(): FloatTag {
+        return this
+    }
 
-	public FloatTag copy() {
-		return this;
-	}
+    override fun accept(tagVisitor: TagVisitor) {
+        tagVisitor.visitFloat(this)
+    }
 
-	@Override
-	public void accept(TagVisitor tagVisitor) {
-		tagVisitor.visitFloat(this);
-	}
+    override fun longValue(): Long {
+        return value.toLong()
+    }
 
-	@Override
-	public long longValue() {
-		return (long)this.value;
-	}
+    override fun intValue(): Int {
+        return floor(value.toDouble())
+    }
 
-	@Override
-	public int intValue() {
-		return top.mcfpp.utils.Math.floor(this.value);
-	}
+    override fun shortValue(): Short {
+        return (floor(value.toDouble()) and 65535).toShort()
+    }
 
-	@Override
-	public short shortValue() {
-		return (short)(top.mcfpp.utils.Math.floor(this.value) & 65535);
-	}
+    override fun byteValue(): Byte {
+        return (floor(value.toDouble()) and 0xFF).toByte()
+    }
 
-	@Override
-	public byte byteValue() {
-		return (byte)(top.mcfpp.utils.Math.floor(this.value) & 0xFF);
-	}
+    override fun doubleValue(): Double {
+        return value.toDouble()
+    }
 
-	@Override
-	public double doubleValue() {
-		return this.value;
-	}
+    override fun floatValue(): Float {
+        return this.value
+    }
 
-	@Override
-	public float floatValue() {
-		return this.value;
-	}
-
-	@Override
-	public Number box() {
-		return this.value;
-	}
+    override fun box(): Number {
+        return this.value
+    }
 
 
-	@Override
-	public String toString() {
-		StringTagVisitor stringTagVisitor = new StringTagVisitor();
-		stringTagVisitor.visitFloat(this);
-		return stringTagVisitor.build();
-	}
+    override fun toString(): String {
+        val stringTagVisitor = StringTagVisitor()
+        stringTagVisitor.visitFloat(this)
+        return stringTagVisitor.build()
+    }
+
+    companion object {
+        val ZERO: FloatTag = FloatTag(0.0f)
+        @JvmStatic
+		fun valueOf(f: Float): FloatTag {
+            return if (f == 0.0f) ZERO else FloatTag(f)
+        }
+    }
 }

@@ -1,76 +1,64 @@
-package top.mcfpp.nbt.tags.primitive;
+package top.mcfpp.nbt.tags.primitive
 
-import top.mcfpp.nbt.visitors.StringTagVisitor;
-import top.mcfpp.nbt.visitors.TagVisitor;
+import top.mcfpp.nbt.visitors.StringTagVisitor
+import top.mcfpp.nbt.visitors.TagVisitor
 
-public record  ShortTag(short value) implements NumericTag {
-	public static ShortTag valueOf(short s) {
-		return s >= Cache.LOW && s <= Cache.HIGH ? Cache.cache[s - Cache.LOW] : new ShortTag(s);
-	}
+@JvmRecord
+data class ShortTag(val value: Short) : NumericTag {
+    override fun copy(): ShortTag {
+        return this
+    }
 
-	public ShortTag copy() {
-		return this;
-	}
+    override fun accept(tagVisitor: TagVisitor) {
+        tagVisitor.visitShort(this)
+    }
 
-	@Override
-	public void accept(TagVisitor tagVisitor) {
-		tagVisitor.visitShort(this);
-	}
+    override fun longValue(): Long {
+        return value.toLong()
+    }
 
-	@Override
-	public long longValue() {
-		return this.value;
-	}
+    override fun intValue(): Int {
+        return value.toInt()
+    }
 
-	@Override
-	public int intValue() {
-		return this.value;
-	}
+    override fun shortValue(): Short {
+        return this.value
+    }
 
-	@Override
-	public short shortValue() {
-		return this.value;
-	}
+    override fun byteValue(): Byte {
+        return (value.toInt() and 255).toByte()
+    }
 
-	@Override
-	public byte byteValue() {
-		return (byte)(this.value & 255);
-	}
+    override fun doubleValue(): Double {
+        return value.toDouble()
+    }
 
-	@Override
-	public double doubleValue() {
-		return this.value;
-	}
+    override fun floatValue(): Float {
+        return value.toFloat()
+    }
 
-	@Override
-	public float floatValue() {
-		return this.value;
-	}
+    override fun box(): Number {
+        return this.value
+    }
 
-	@Override
-	public Number box() {
-		return this.value;
-	}
+    override fun toString(): String {
+        val stringTagVisitor = StringTagVisitor()
+        stringTagVisitor.visitShort(this)
+        return stringTagVisitor.build()
+    }
 
-	@Override
-	public String toString() {
-		StringTagVisitor stringTagVisitor = new StringTagVisitor();
-		stringTagVisitor.visitShort(this);
-		return stringTagVisitor.build();
-	}
+    internal object Cache {
+        const val HIGH: Int = 1024
+        const val LOW: Int = -128
+        val cache: Array<ShortTag> = Array(1153){
+            ShortTag((LOW + it).toShort())
+        }
+    }
 
-	static class Cache {
-		private static final int HIGH = 1024;
-		private static final int LOW = -128;
-		static final ShortTag[] cache = new ShortTag[1153];
-
-		private Cache() {
-		}
-
-		static {
-			for (int i = 0; i < cache.length; i++) {
-				cache[i] = new ShortTag((short)(LOW + i));
-			}
-		}
-	}
+    companion object {
+        @JvmStatic
+		fun valueOf(s: Short): ShortTag {
+            return if (s >= Cache.LOW && s <= Cache.HIGH) Cache.cache[s - Cache.LOW] else ShortTag(s)
+        }
+    }
 }

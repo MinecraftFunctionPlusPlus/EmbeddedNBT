@@ -1,10 +1,9 @@
-package top.mcfpp.nbt.tags.primitive;
+package top.mcfpp.nbt.tags.primitive
 
-import top.mcfpp.nbt.tags.Tag;
+import top.mcfpp.nbt.tags.Tag
 
-public sealed interface PrimitiveTag extends Tag permits NumericTag, StringTag {
-	@Override
-	default Tag copy() {
-		return this;
-	}
+interface PrimitiveTag : Tag {
+    override fun copy(): Tag {
+        return this
+    }
 }

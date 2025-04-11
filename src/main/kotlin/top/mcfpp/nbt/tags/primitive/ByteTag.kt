@@ -1,81 +1,70 @@
-package top.mcfpp.nbt.tags.primitive;
+package top.mcfpp.nbt.tags.primitive
 
-import top.mcfpp.nbt.visitors.StringTagVisitor;
-import top.mcfpp.nbt.visitors.TagVisitor;
+import top.mcfpp.nbt.visitors.StringTagVisitor
+import top.mcfpp.nbt.visitors.TagVisitor
 
-public record ByteTag(byte value) implements NumericTag {
-	public static final ByteTag ZERO = valueOf((byte)0);
-	public static final ByteTag ONE = valueOf((byte)1);
+@JvmRecord
+data class ByteTag(val value: Byte) : NumericTag {
+    override fun copy(): ByteTag {
+        return this
+    }
 
-	public static ByteTag valueOf(byte b) {
-		return Cache.cache[128 + b];
-	}
+    override fun accept(tagVisitor: TagVisitor) {
+        tagVisitor.visitByte(this)
+    }
 
-	public static ByteTag valueOf(boolean bl) {
-		return bl ? ONE : ZERO;
-	}
+    override fun longValue(): Long {
+        return value.toLong()
+    }
 
-	public ByteTag copy() {
-		return this;
-	}
+    override fun intValue(): Int {
+        return value.toInt()
+    }
 
-	@Override
-	public void accept(TagVisitor tagVisitor) {
-		tagVisitor.visitByte(this);
-	}
+    override fun shortValue(): Short {
+        return value.toShort()
+    }
 
-	@Override
-	public long longValue() {
-		return this.value;
-	}
+    override fun byteValue(): Byte {
+        return this.value
+    }
 
-	@Override
-	public int intValue() {
-		return this.value;
-	}
+    override fun doubleValue(): Double {
+        return value.toDouble()
+    }
 
-	@Override
-	public short shortValue() {
-		return this.value;
-	}
+    override fun floatValue(): Float {
+        return value.toFloat()
+    }
 
-	@Override
-	public byte byteValue() {
-		return this.value;
-	}
+    override fun box(): Number {
+        return this.value
+    }
 
-	@Override
-	public double doubleValue() {
-		return this.value;
-	}
+    override fun toString(): String {
+        val stringTagVisitor = StringTagVisitor()
+        stringTagVisitor.visitByte(this)
+        return stringTagVisitor.build()
+    }
 
-	@Override
-	public float floatValue() {
-		return this.value;
-	}
+    internal object Cache {
+        val cache: Array<ByteTag> = Array(256){
+            ByteTag((it - 128).toByte())
+        }
+    }
 
-	@Override
-	public Number box() {
-		return this.value;
-	}
+    companion object {
+        val ZERO: ByteTag = valueOf(0.toByte())
+        val ONE: ByteTag = valueOf(1.toByte())
 
-	@Override
-	public String toString() {
-		StringTagVisitor stringTagVisitor = new StringTagVisitor();
-		stringTagVisitor.visitByte(this);
-		return stringTagVisitor.build();
-	}
+        @JvmStatic
+		fun valueOf(b: Byte): ByteTag {
+            return Cache.cache[128 + b]
+        }
 
-	static class Cache {
-		static final ByteTag[] cache = new ByteTag[256];
-
-		private Cache() {
-		}
-
-		static {
-			for (int i = 0; i < cache.length; i++) {
-				cache[i] = new ByteTag((byte)(i - 128));
-			}
-		}
-	}
+        @JvmStatic
+		fun valueOf(bl: Boolean): ByteTag {
+            return if (bl) ONE else ZERO
+        }
+    }
 }

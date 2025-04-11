@@ -5,12 +5,8 @@ import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
 import top.mcfpp.nbt.tags.CompoundTag
-import top.mcfpp.nbt.tags.EndTag
 import top.mcfpp.nbt.tags.Tag
-import top.mcfpp.nbt.tags.collection.ByteArrayTag
-import top.mcfpp.nbt.tags.collection.IntArrayTag
 import top.mcfpp.nbt.tags.collection.ListTag
-import top.mcfpp.nbt.tags.collection.LongArrayTag
 import top.mcfpp.nbt.tags.primitive.*
 import top.mcfpp.utils.Functional.make
 import java.util.*
