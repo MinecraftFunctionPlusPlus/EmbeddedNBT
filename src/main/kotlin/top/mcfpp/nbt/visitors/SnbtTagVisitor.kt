@@ -13,7 +13,7 @@ open class SnbtTagVisitor: TagVisitor {
 
     private var result = ""
 
-    open fun visit(tag: Tag?): String {
+    open fun visit(tag: Tag<*>?): String {
         tag!!.accept(this)
         return this.result
     }

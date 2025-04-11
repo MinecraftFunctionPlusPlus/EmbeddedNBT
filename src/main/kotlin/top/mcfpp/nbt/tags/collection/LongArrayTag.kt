@@ -4,7 +4,6 @@ import org.apache.commons.lang3.ArrayUtils
 import top.mcfpp.nbt.tags.primitive.LongTag
 import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
-import java.util.*
 
 class LongArrayTag(override var value: LongArray) : CollectionTag<LongTag, LongArray> {
     override fun toString(): String {

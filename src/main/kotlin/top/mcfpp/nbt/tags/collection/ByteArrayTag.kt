@@ -1,11 +1,9 @@
 package top.mcfpp.nbt.tags.collection
 
 import org.apache.commons.lang3.ArrayUtils
-import top.mcfpp.nbt.tags.Tag
 import top.mcfpp.nbt.tags.primitive.ByteTag
 import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
-import java.util.*
 
 class ByteArrayTag(override var value: ByteArray) : CollectionTag<ByteTag, ByteArray> {
     override fun toString(): String {

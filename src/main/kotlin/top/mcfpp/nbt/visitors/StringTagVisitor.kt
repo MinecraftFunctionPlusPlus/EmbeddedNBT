@@ -107,7 +107,7 @@ class StringTagVisitor : TagVisitor {
 
     override fun visitCompound(compoundTag: CompoundTag) {
         builder.append('{')
-        val list: MutableList<Map.Entry<String, Tag>> = ArrayList(compoundTag.entrySet())
+        val list: MutableList<Map.Entry<String, Tag<*>>> = ArrayList(compoundTag.entrySet())
         list.sortWith(comparingByKey())
 
         for (i in list.indices) {

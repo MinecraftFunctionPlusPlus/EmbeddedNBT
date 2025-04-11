@@ -4,7 +4,6 @@ import org.apache.commons.lang3.ArrayUtils
 import top.mcfpp.nbt.tags.primitive.IntTag
 import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
-import java.util.*
 
 class IntArrayTag(override var value: IntArray) : CollectionTag<IntTag, IntArray> {
     override fun toString(): String {

@@ -3,7 +3,6 @@ package top.mcfpp.nbt.tags.primitive
 import top.mcfpp.nbt.parsers.SnbtGrammarUtils.escapeControlCharacters
 import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
-import java.util.*
 
 @JvmRecord
 data class StringTag(override val value: String) : PrimitiveTag<String> {
