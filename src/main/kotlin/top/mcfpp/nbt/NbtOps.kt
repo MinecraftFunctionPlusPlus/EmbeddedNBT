@@ -28,17 +28,16 @@ import java.nio.ByteBuffer
 import java.util.*
 import java.util.function.BiConsumer
 import java.util.function.Consumer
-import java.util.function.Function
 import java.util.stream.IntStream
 import java.util.stream.LongStream
 import java.util.stream.Stream
 
-class NbtOps private constructor() : DynamicOps<Tag> {
-    override fun empty(): Tag {
+class NbtOps private constructor() : DynamicOps<Tag<*>> {
+    override fun empty(): Tag<*> {
         return EndTag.INSTANCE
     }
 
-    override fun <U:Any> convertTo(dynamicOps: DynamicOps<U>, tag: Tag): U {
+    override fun <U:Any> convertTo(dynamicOps: DynamicOps<U>, tag: Tag<*>): U {
         val u: U = when (tag) {
             is EndTag -> dynamicOps.empty()
             is ByteTag -> dynamicOps.createByte(tag.value)
@@ -47,63 +46,62 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             is LongTag -> dynamicOps.createLong(tag.value)
             is FloatTag -> dynamicOps.createFloat(tag.value)
             is DoubleTag -> dynamicOps.createDouble(tag.value)
-            is ByteArrayTag -> dynamicOps.createByteList(ByteBuffer.wrap(tag.asByteArray))
+            is ByteArrayTag -> dynamicOps.createByteList(ByteBuffer.wrap(tag.value))
             is StringTag -> dynamicOps.createString(tag.value)
             is ListTag -> this.convertList(dynamicOps, tag)
             is CompoundTag -> this.convertMap(dynamicOps, tag)
-            is IntArrayTag -> dynamicOps.createIntList(Arrays.stream(tag.asIntArray))
-            is LongArrayTag -> dynamicOps.createLongList(Arrays.stream(tag.asLongArray))
+            is IntArrayTag -> dynamicOps.createIntList(Arrays.stream(tag.value))
+            is LongArrayTag -> dynamicOps.createLongList(Arrays.stream(tag.value))
             else -> throw MatchException(null, null)
         }
         return u
     }
 
-    override fun getNumberValue(tag: Tag): DataResult<Number> {
-        return tag.asNumber().map<DataResult<Number>> { result: Number? -> DataResult.success(result) }
-            .orElseGet { DataResult.error { "Not a number" } }
+    override fun getNumberValue(tag: Tag<*>): DataResult<Number> {
+        return tag.asNumber()?.let { DataResult.success(it) }?: DataResult.error { "Not a number" }
     }
 
-    override fun createNumeric(number: Number): Tag {
+    override fun createNumeric(number: Number): Tag<*> {
         return valueOf(number.toDouble())
     }
 
-    override fun createByte(b: Byte): Tag {
+    override fun createByte(b: Byte): Tag<*> {
         return valueOf(b)
     }
 
-    override fun createShort(s: Short): Tag {
+    override fun createShort(s: Short): Tag<*> {
         return valueOf(s)
     }
 
-    override fun createInt(i: Int): Tag {
+    override fun createInt(i: Int): Tag<*> {
         return valueOf(i)
     }
 
-    override fun createLong(l: Long): Tag {
+    override fun createLong(l: Long): Tag<*> {
         return valueOf(l)
     }
 
-    override fun createFloat(f: Float): Tag {
+    override fun createFloat(f: Float): Tag<*> {
         return valueOf(f)
     }
 
-    override fun createDouble(d: Double): Tag {
+    override fun createDouble(d: Double): Tag<*> {
         return valueOf(d)
     }
 
-    override fun createBoolean(bl: Boolean): Tag {
+    override fun createBoolean(bl: Boolean): Tag<*> {
         return valueOf(bl)
     }
 
-    override fun getStringValue(tag: Tag): DataResult<String> {
+    override fun getStringValue(tag: Tag<*>): DataResult<String> {
         return if (tag is StringTag) DataResult.success(tag.value) else DataResult.error { "Not a string" }
     }
 
-    override fun createString(string: String): Tag {
+    override fun createString(string: String): Tag<*> {
         return valueOf(string)
     }
 
-    override fun mergeToList(tag: Tag, tag2: Tag): DataResult<Tag> {
+    override fun mergeToList(tag: Tag<*>, tag2: Tag<*>): DataResult<Tag<*>> {
         return createCollector(tag)
             .map { listCollector: ListCollector -> DataResult.success(listCollector.accept(tag2).result()) }
             .orElseGet {
@@ -113,7 +111,7 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             }
     }
 
-    override fun mergeToList(tag: Tag, list: List<Tag>): DataResult<Tag> {
+    override fun mergeToList(tag: Tag<*>, list: List<Tag<*>>): DataResult<Tag<*>> {
         return createCollector(tag)
             .map { listCollector: ListCollector -> DataResult.success(listCollector.acceptAll(list).result()) }
             .orElseGet {
@@ -123,7 +121,7 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             }
     }
 
-    override fun mergeToMap(tag: Tag, tag2: Tag, tag3: Tag): DataResult<Tag> {
+    override fun mergeToMap(tag: Tag<*>, tag2: Tag<*>, tag3: Tag<*>): DataResult<Tag<*>> {
         if (tag !is CompoundTag && tag !is EndTag) {
             return DataResult.error({ "mergeToMap called with not a map: $tag" }, tag)
         } else if (tag2 is StringTag) {
@@ -136,13 +134,13 @@ class NbtOps private constructor() : DynamicOps<Tag> {
         }
     }
 
-    override fun mergeToMap(tag: Tag, mapLike: MapLike<Tag>): DataResult<Tag> {
+    override fun mergeToMap(tag: Tag<*>, mapLike: MapLike<Tag<*>>): DataResult<Tag<*>> {
         if (tag !is CompoundTag && tag !is EndTag) {
             return DataResult.error({ "mergeToMap called with not a map: $tag" }, tag)
         } else {
             val compoundTag2 = if (tag is CompoundTag) tag.shallowCopy() else CompoundTag()
-            val list: MutableList<Tag> = ArrayList()
-            mapLike.entries().forEach { pair: Pair<Tag, Tag> ->
+            val list: MutableList<Tag<*>> = ArrayList()
+            mapLike.entries().forEach { pair: Pair<Tag<*>, Tag<*>> ->
                 val tagx = pair.first
                 if (tagx is StringTag) {
                     compoundTag2.put(tagx.value, pair.second)
@@ -150,19 +148,19 @@ class NbtOps private constructor() : DynamicOps<Tag> {
                     list.add(tagx)
                 }
             }
-            return if (!list.isEmpty()) DataResult.error(
+            return if (list.isNotEmpty()) DataResult.error(
                 { "some keys are not strings: $list" },
                 compoundTag2
             ) else DataResult.success(compoundTag2)
         }
     }
 
-    override fun mergeToMap(tag: Tag, map: Map<Tag, Tag>): DataResult<Tag> {
+    override fun mergeToMap(tag: Tag<*>, map: Map<Tag<*>, Tag<*>>): DataResult<Tag<*>> {
         if (tag !is CompoundTag && tag !is EndTag) {
             return DataResult.error({ "mergeToMap called with not a map: $tag" }, tag)
         } else {
             val compoundTag2 = if (tag is CompoundTag) tag.shallowCopy() else CompoundTag()
-            val list: MutableList<Tag> = ArrayList()
+            val list: MutableList<Tag<*>> = ArrayList()
 
             for ((tag2, value) in map) {
                 if (tag2 is StringTag) {
@@ -172,17 +170,17 @@ class NbtOps private constructor() : DynamicOps<Tag> {
                 }
             }
 
-            return if (!list.isEmpty()) DataResult.error(
+            return if (list.isNotEmpty()) DataResult.error(
                 { "some keys are not strings: $list" },
                 compoundTag2
             ) else DataResult.success(compoundTag2)
         }
     }
 
-    override fun getMapValues(tag: Tag): DataResult<Stream<Pair<Tag, Tag>>> {
+    override fun getMapValues(tag: Tag<*>): DataResult<Stream<Pair<Tag<*>, Tag<*>>>> {
         return if (tag is CompoundTag
         ) DataResult.success(
-            tag.entrySet().stream().map { entry: Map.Entry<String, Tag> ->
+            tag.entrySet().stream().map { entry: Map.Entry<String, Tag<*>> ->
                 Pair.of(
                     this.createString(entry.key), entry.value
                 )
@@ -191,36 +189,35 @@ class NbtOps private constructor() : DynamicOps<Tag> {
         else DataResult.error { "Not a map: $tag" }
     }
 
-    override fun getMapEntries(tag: Tag): DataResult<Consumer<BiConsumer<Tag, Tag>>> {
+    override fun getMapEntries(tag: Tag<*>): DataResult<Consumer<BiConsumer<Tag<*>, Tag<*>>>> {
         return if (tag is CompoundTag) DataResult.success(
-            Consumer { biConsumer: BiConsumer<Tag, Tag> ->
+            Consumer { biConsumer: BiConsumer<Tag<*>, Tag<*>> ->
                 for ((key, value) in tag.entrySet()) {
-                    biConsumer.accept(this.createString(key!!), value)
+                    biConsumer.accept(this.createString(key), value)
                 }
             }) else DataResult.error { "Not a map: $tag" }
     }
 
-    override fun getMap(tag: Tag): DataResult<MapLike<Tag>> {
-        return if (tag is CompoundTag) DataResult.success(object : MapLike<Tag> {
-            override fun get(tagx: Tag?): Tag? {
+    override fun getMap(tag: Tag<*>): DataResult<MapLike<Tag<*>>> {
+        return if (tag is CompoundTag) DataResult.success(object : MapLike<Tag<*>> {
+            override fun get(tagx: Tag<*>?): Tag<*>? {
                 if (tagx is StringTag) {
-                    return tag.get(tagx.value)
+                    return tag[tagx.value]
                 } else {
                     throw UnsupportedOperationException("Cannot get map entry with non-string key: $tag")
                 }
             }
 
-            override fun get(string: String): Tag? {
-                return tag.get(string)
+            override fun get(string: String): Tag<*>? {
+                return tag[string]
             }
 
-            override fun entries(): Stream<Pair<Tag?, Tag?>> {
-                return tag.entrySet().stream().map(
-                    Function<Map.Entry<String, Tag?>, Pair<Tag?, Tag?>> { entry: Map.Entry<String, Tag?> ->
-                        Pair.of(
-                            this@NbtOps.createString(entry.key), entry.value
-                        )
-                    })
+            override fun entries(): Stream<Pair<Tag<*>?, Tag<*>?>> {
+                return tag.entrySet().stream().map { entry: Map.Entry<String, Tag<*>?> ->
+                    Pair.of(
+                        this@NbtOps.createString(entry.key), entry.value
+                    )
+                }
             }
 
             override fun toString(): String {
@@ -229,9 +226,9 @@ class NbtOps private constructor() : DynamicOps<Tag> {
         }) else DataResult.error { "Not a map: $tag" }
     }
 
-    override fun createMap(stream: Stream<Pair<Tag, Tag>>): Tag {
+    override fun createMap(stream: Stream<Pair<Tag<*>, Tag<*>>>): Tag<*> {
         val compoundTag = CompoundTag()
-        stream.forEach { pair: Pair<Tag, Tag> ->
+        stream.forEach { pair: Pair<Tag<*>, Tag<*>> ->
             val tag = pair.first
             val tag2 = pair.second
             if (tag is StringTag) {
@@ -243,49 +240,50 @@ class NbtOps private constructor() : DynamicOps<Tag> {
         return compoundTag
     }
 
-    override fun getStream(tag: Tag): DataResult<Stream<Tag>> {
-        return if (tag is CollectionTag<*>) DataResult.success(tag.stream() as Stream<Tag>) else DataResult.error { "Not a list" }
+    @Suppress("UNCHECKED_CAST")
+    override fun getStream(tag: Tag<*>): DataResult<Stream<Tag<*>>> {
+        return if (tag is CollectionTag<*,*>) DataResult.success(tag.stream() as Stream<Tag<*>>) else DataResult.error { "Not a list" }
     }
 
-    override fun getList(tag: Tag): DataResult<Consumer<Consumer<Tag>>> {
-        return if (tag is CollectionTag<*>) DataResult.success(
-            Consumer { action: Consumer<Tag> -> tag.forEach(action) }) else DataResult.error { "Not a list: $tag" }
+    override fun getList(tag: Tag<*>): DataResult<Consumer<Consumer<Tag<*>>>> {
+        return if (tag is CollectionTag<*,*>) DataResult.success(
+            Consumer { action: Consumer<Tag<*>> -> tag.forEach(action) }) else DataResult.error { "Not a list: $tag" }
     }
 
-    override fun getByteBuffer(tag: Tag): DataResult<ByteBuffer> {
-        return if (tag is ByteArrayTag) DataResult.success(ByteBuffer.wrap(tag.asByteArray)) else super.getByteBuffer(
+    override fun getByteBuffer(tag: Tag<*>): DataResult<ByteBuffer> {
+        return if (tag is ByteArrayTag) DataResult.success(ByteBuffer.wrap(tag.value)) else super.getByteBuffer(
             tag
         )
     }
 
-    override fun createByteList(byteBuffer: ByteBuffer): Tag {
+    override fun createByteList(byteBuffer: ByteBuffer): Tag<*> {
         val byteBuffer2 = byteBuffer.duplicate().clear()
         val bs = ByteArray(byteBuffer.capacity())
         byteBuffer2[0, bs, 0, bs.size]
         return ByteArrayTag(bs)
     }
 
-    override fun getIntStream(tag: Tag): DataResult<IntStream> {
-        return if (tag is IntArrayTag) DataResult.success(Arrays.stream(tag.asIntArray)) else super.getIntStream(tag)
+    override fun getIntStream(tag: Tag<*>): DataResult<IntStream> {
+        return if (tag is IntArrayTag) DataResult.success(Arrays.stream(tag.value)) else super.getIntStream(tag)
     }
 
-    override fun createIntList(intStream: IntStream): Tag {
+    override fun createIntList(intStream: IntStream): Tag<*> {
         return IntArrayTag(intStream.toArray())
     }
 
-    override fun getLongStream(tag: Tag): DataResult<LongStream> {
-        return if (tag is LongArrayTag) DataResult.success(Arrays.stream(tag.asLongArray)) else super.getLongStream(tag)
+    override fun getLongStream(tag: Tag<*>): DataResult<LongStream> {
+        return if (tag is LongArrayTag) DataResult.success(Arrays.stream(tag.value)) else super.getLongStream(tag)
     }
 
-    override fun createLongList(longStream: LongStream): Tag {
+    override fun createLongList(longStream: LongStream): Tag<*> {
         return LongArrayTag(longStream.toArray())
     }
 
-    override fun createList(stream: Stream<Tag>): Tag {
+    override fun createList(stream: Stream<Tag<*>>): Tag<*> {
         return fromStream(stream)
     }
 
-    override fun remove(tag: Tag, string: String): Tag {
+    override fun remove(tag: Tag<*>, string: String): Tag<*> {
         if (tag is CompoundTag) {
             val compoundTag2: CompoundTag = tag.shallowCopy()
             compoundTag2.remove(string)
@@ -299,7 +297,7 @@ class NbtOps private constructor() : DynamicOps<Tag> {
         return "NBT"
     }
 
-    override fun mapBuilder(): RecordBuilder<Tag> {
+    override fun mapBuilder(): RecordBuilder<Tag<*>> {
         return NbtRecordBuilder()
     }
 
@@ -310,7 +308,7 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             values.addElements(0, bs)
         }
 
-        override fun accept(tag: Tag): ListCollector {
+        override fun accept(tag: Tag<*>): ListCollector {
             if (tag is ByteTag) {
                 values.add(tag.byteValue())
                 return this
@@ -319,7 +317,7 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             }
         }
 
-        override fun result(): Tag {
+        override fun result(): Tag<*> {
             return ByteArrayTag(values.toByteArray())
         }
     }
@@ -345,12 +343,12 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             longArrayList.forEach(LongConsumer { l: Long -> result.add(valueOf(l)) })
         }
 
-        override fun accept(tag: Tag): ListCollector {
+        override fun accept(tag: Tag<*>): ListCollector {
             result.add(tag)
             return this
         }
 
-        override fun result(): Tag {
+        override fun result(): Tag<*> {
             return this.result
         }
     }
@@ -362,7 +360,7 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             values.addElements(0, `is`)
         }
 
-        override fun accept(tag: Tag): ListCollector {
+        override fun accept(tag: Tag<*>): ListCollector {
             if (tag is IntTag) {
                 values.add(tag.intValue())
                 return this
@@ -371,15 +369,15 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             }
         }
 
-        override fun result(): Tag {
+        override fun result(): Tag<*> {
             return IntArrayTag(values.toIntArray())
         }
     }
 
     internal interface ListCollector {
-        fun accept(tag: Tag): ListCollector
+        fun accept(tag: Tag<*>): ListCollector
 
-        fun acceptAll(iterable: Iterable<Tag>): ListCollector {
+        fun acceptAll(iterable: Iterable<Tag<*>>): ListCollector {
             var listCollector = this
 
             for (tag in iterable) {
@@ -389,11 +387,11 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             return listCollector
         }
 
-        fun acceptAll(stream: Stream<Tag>): ListCollector {
+        fun acceptAll(stream: Stream<Tag<*>>): ListCollector {
             return this.acceptAll(Iterable { stream.iterator() })
         }
 
-        fun result(): Tag
+        fun result(): Tag<*>
     }
 
     internal class LongListCollector(ls: LongArray?) : ListCollector {
@@ -403,7 +401,7 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             values.addElements(0, ls)
         }
 
-        override fun accept(tag: Tag): ListCollector {
+        override fun accept(tag: Tag<*>): ListCollector {
             if (tag is LongTag) {
                 values.add(tag.longValue())
                 return this
@@ -412,24 +410,24 @@ class NbtOps private constructor() : DynamicOps<Tag> {
             }
         }
 
-        override fun result(): Tag {
+        override fun result(): Tag<*> {
             return LongArrayTag(values.toLongArray())
         }
     }
 
-    internal inner class NbtRecordBuilder : RecordBuilder.AbstractStringBuilder<Tag, CompoundTag>(
+    internal inner class NbtRecordBuilder : RecordBuilder.AbstractStringBuilder<Tag<*>, CompoundTag>(
         this@NbtOps
     ) {
         override fun initBuilder(): CompoundTag {
             return CompoundTag()
         }
 
-        override fun append(string: String, tag: Tag?, compoundTag: CompoundTag): CompoundTag {
+        override fun append(string: String, tag: Tag<*>?, compoundTag: CompoundTag): CompoundTag {
             compoundTag.put(string, tag!!)
             return compoundTag
         }
 
-        override fun build(compoundTag: CompoundTag, tag: Tag?): DataResult<Tag?> {
+        override fun build(compoundTag: CompoundTag, tag: Tag<*>?): DataResult<Tag<*>?> {
             if (tag == null || tag === EndTag.INSTANCE) {
                 return DataResult.success(compoundTag)
             } else if (tag !is CompoundTag) {
@@ -449,21 +447,21 @@ class NbtOps private constructor() : DynamicOps<Tag> {
     companion object {
         val INSTANCE: NbtOps = NbtOps()
 
-        private fun createCollector(tag: Tag): Optional<ListCollector> {
+        private fun createCollector(tag: Tag<*>): Optional<ListCollector> {
             when (tag) {
                 is EndTag -> return Optional.of(GenericListCollector())
 
-                is CollectionTag<*> -> return if (tag.isEmpty) {
+                is CollectionTag<*,*> -> return if (tag.isEmpty) {
                     Optional.of(GenericListCollector())
                 } else {
                     when (tag) {
                         is ListTag -> Optional.of(GenericListCollector(tag))
 
-                        is ByteArrayTag -> Optional.of(ByteListCollector(tag.asByteArray))
+                        is ByteArrayTag -> Optional.of(ByteListCollector(tag.value))
 
-                        is IntArrayTag -> Optional.of(IntListCollector(tag.asIntArray))
+                        is IntArrayTag -> Optional.of(IntListCollector(tag.value))
 
-                        is LongArrayTag -> Optional.of(LongListCollector(tag.asLongArray))
+                        is LongArrayTag -> Optional.of(LongListCollector(tag.value))
 
                         else -> throw MatchException(null, null)
                     }

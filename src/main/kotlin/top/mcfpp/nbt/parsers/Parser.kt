@@ -27,14 +27,14 @@ object Parser {
 
     @JvmStatic
     @Throws(CommandSyntaxException::class)
-    fun parse(string:String):Tag{
+    fun parse(string:String):Tag<*>{
         val stringReader = StringReader(string)
         return parse(stringReader)
     }
 
     @JvmStatic
     @Throws(CommandSyntaxException::class)
-    fun parse(stringReader:StringReader): Tag {
+    fun parse(stringReader:StringReader): Tag<*> {
         val nameRule = SnbtGrammar.createParser(NbtOps.INSTANCE)
 
         val `object` = parseForCommands(stringReader,nameRule)
@@ -48,7 +48,7 @@ object Parser {
 
     @JvmStatic
     @Throws(CommandSyntaxException::class)
-    private fun castToCompoundOrThrow(stringReader: StringReader, tag: Tag): CompoundTag {
+    private fun castToCompoundOrThrow(stringReader: StringReader, tag: Tag<*>): CompoundTag {
         if (tag is CompoundTag) {
             return tag
         } else {

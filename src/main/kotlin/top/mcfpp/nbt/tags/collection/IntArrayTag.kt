@@ -6,7 +6,7 @@ import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 import java.util.*
 
-class IntArrayTag(var asIntArray: IntArray) : CollectionTag<IntTag> {
+class IntArrayTag(override var value: IntArray) : CollectionTag<IntTag, IntArray> {
     override fun toString(): String {
         val stringTagVisitor = StringTagVisitor()
         stringTagVisitor.visitIntArray(this)
@@ -14,17 +14,17 @@ class IntArrayTag(var asIntArray: IntArray) : CollectionTag<IntTag> {
     }
 
     override fun copy(): IntArrayTag {
-        val `is` = IntArray(asIntArray.size)
-        System.arraycopy(this.asIntArray, 0, `is`, 0, asIntArray.size)
+        val `is` = IntArray(value.size)
+        System.arraycopy(this.value, 0, `is`, 0, value.size)
         return IntArrayTag(`is`)
     }
 
-    override fun equals(`object`: Any?): Boolean {
-        return this === `object` || `object` is IntArrayTag && asIntArray.contentEquals(`object`.asIntArray)
+    override fun equals(other: Any?): Boolean {
+        return this === other || other is IntArrayTag && value.contentEquals(other.value)
     }
 
     override fun hashCode(): Int {
-        return asIntArray.contentHashCode()
+        return value.contentHashCode()
     }
 
     override fun accept(tagVisitor: TagVisitor) {
@@ -32,34 +32,34 @@ class IntArrayTag(var asIntArray: IntArray) : CollectionTag<IntTag> {
     }
 
     override val size:Int get() {
-        return asIntArray.size
+        return value.size
     }
 
     override operator fun get(index: Int): IntTag {
-        return IntTag.valueOf(asIntArray[index])
+        return IntTag.valueOf(value[index])
     }
 
     override operator fun set(index: Int, tag: IntTag): IntTag {
-        val j = asIntArray[index]
-        asIntArray[index] = tag.intValue()
+        val j = value[index]
+        value[index] = tag.intValue()
         return IntTag.valueOf(j)
     }
 
     override fun add(index: Int, tag: IntTag) {
-        this.asIntArray = ArrayUtils.insert(index, this.asIntArray, tag.intValue())
+        this.value = ArrayUtils.insert(index, this.value, tag.intValue())
     }
 
     override fun removeAt(index: Int): IntTag {
-        val j = asIntArray[index]
-        this.asIntArray = ArrayUtils.remove(this.asIntArray, index)
+        val j = value[index]
+        this.value = ArrayUtils.remove(this.value, index)
         return IntTag.valueOf(j)
     }
 
     override fun clear() {
-        this.asIntArray = IntArray(0)
+        this.value = IntArray(0)
     }
 
-    override fun asIntArray(): Optional<IntArray> {
-        return Optional.of(this.asIntArray)
+    override fun asIntArray(): IntArray {
+        return this.value
     }
 }

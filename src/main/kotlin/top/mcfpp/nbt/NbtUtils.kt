@@ -11,7 +11,7 @@ import top.mcfpp.nbt.visitors.SnbtTagVisitor
 
 object NbtUtils {
     @VisibleForTesting
-    fun compareNbt(tag: Tag?, tag2: Tag?, bl: Boolean): Boolean {
+    fun compareNbt(tag: Tag<*>?, tag2: Tag<*>?, bl: Boolean): Boolean {
         if (tag === tag2) {
             return true
         } else if (tag == null) {
@@ -26,7 +26,7 @@ object NbtUtils {
                 return false
             } else {
                 for ((key, tag3) in tag.entrySet()) {
-                    if (!compareNbt(tag3, compoundTag2.get(key), bl)) {
+                    if (!compareNbt(tag3, compoundTag2[key], bl)) {
                         return false
                     }
                 }

@@ -3,7 +3,10 @@ package top.mcfpp.nbt.tags
 import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 
-class EndTag private constructor() : Tag {
+class EndTag private constructor() : Tag<Unit> {
+
+    override val value = Unit
+
     override fun toString(): String {
         val stringTagVisitor = StringTagVisitor()
         stringTagVisitor.visitEnd(this)

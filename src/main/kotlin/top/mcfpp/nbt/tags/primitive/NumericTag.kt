@@ -1,8 +1,6 @@
 package top.mcfpp.nbt.tags.primitive
 
-import java.util.*
-
-interface NumericTag : PrimitiveTag {
+interface NumericTag<V> : PrimitiveTag<V> {
     fun byteValue(): Byte
 
     fun shortValue(): Short
@@ -17,35 +15,48 @@ interface NumericTag : PrimitiveTag {
 
     fun box(): Number
 
-    override fun asNumber(): Optional<Number> {
-        return Optional.of(this.box())
+    override fun asNumber(): Number {
+        return this.box()
     }
 
-    override fun asByte(): Optional<Byte> {
-        return Optional.of(this.byteValue())
+    override fun asByte(): Byte {
+        return this.byteValue()
     }
 
-    override fun asShort(): Optional<Short> {
-        return Optional.of(this.shortValue())
+    override fun asShort(): Short {
+        return this.shortValue()
     }
 
-    override fun asInt(): Optional<Int> {
-        return Optional.of(this.intValue())
+    override fun asInt(): Int {
+        return this.intValue()
     }
 
-    override fun asLong(): Optional<Long> {
-        return Optional.of(this.longValue())
+    override fun asLong(): Long {
+        return this.longValue()
     }
 
-    override fun asFloat(): Optional<Float> {
-        return Optional.of(this.floatValue())
+    override fun asFloat(): Float {
+        return this.floatValue()
     }
 
-    override fun asDouble(): Optional<Double> {
-        return Optional.of(this.doubleValue())
+    override fun asDouble(): Double {
+        return this.doubleValue()
     }
 
-    override fun asBoolean(): Optional<Boolean> {
-        return Optional.of(byteValue().toInt() != 0)
+    override fun asBoolean(): Boolean {
+        return byteValue().toInt() != 0
+    }
+
+}
+
+inline fun <reified N: Number> NumericTag<*>.asN(): N?{
+    return when(N::class.javaPrimitiveType){
+        Byte::class.javaPrimitiveType -> this.byteValue() as N
+        Short::class.javaPrimitiveType -> this.shortValue() as N
+        Int::class.javaPrimitiveType -> this.intValue() as N
+        Long::class.javaPrimitiveType -> this.longValue() as N
+        Float::class.javaPrimitiveType -> this.floatValue() as N
+        Double::class.javaPrimitiveType -> this.doubleValue() as N
+        else -> null
     }
 }

@@ -6,7 +6,7 @@ import top.mcfpp.nbt.visitors.TagVisitor
 import java.util.*
 
 @JvmRecord
-data class StringTag(val value: String) : PrimitiveTag {
+data class StringTag(override val value: String) : PrimitiveTag<String> {
     override fun toString(): String {
         val stringTagVisitor = StringTagVisitor()
         stringTagVisitor.visitString(this)
@@ -17,8 +17,8 @@ data class StringTag(val value: String) : PrimitiveTag {
         return this
     }
 
-    override fun asString(): Optional<String> {
-        return Optional.of(this.value)
+    override fun asString(): String {
+        return this.value
     }
 
     override fun accept(tagVisitor: TagVisitor) {

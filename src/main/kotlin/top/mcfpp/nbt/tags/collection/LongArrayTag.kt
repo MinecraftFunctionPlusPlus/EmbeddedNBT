@@ -6,7 +6,7 @@ import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 import java.util.*
 
-class LongArrayTag(var asLongArray: LongArray) : CollectionTag<LongTag> {
+class LongArrayTag(override var value: LongArray) : CollectionTag<LongTag, LongArray> {
     override fun toString(): String {
         val stringTagVisitor = StringTagVisitor()
         stringTagVisitor.visitLongArray(this)
@@ -14,17 +14,17 @@ class LongArrayTag(var asLongArray: LongArray) : CollectionTag<LongTag> {
     }
 
     override fun copy(): LongArrayTag {
-        val ls = LongArray(asLongArray.size)
-        System.arraycopy(this.asLongArray, 0, ls, 0, asLongArray.size)
+        val ls = LongArray(value.size)
+        System.arraycopy(this.value, 0, ls, 0, value.size)
         return LongArrayTag(ls)
     }
 
-    override fun equals(`object`: Any?): Boolean {
-        return this === `object` || `object` is LongArrayTag && asLongArray.contentEquals(`object`.asLongArray)
+    override fun equals(other: Any?): Boolean {
+        return this === other || other is LongArrayTag && value.contentEquals(other.value)
     }
 
     override fun hashCode(): Int {
-        return asLongArray.contentHashCode()
+        return value.contentHashCode()
     }
 
     override fun accept(tagVisitor: TagVisitor) {
@@ -32,34 +32,34 @@ class LongArrayTag(var asLongArray: LongArray) : CollectionTag<LongTag> {
     }
 
     override val size: Int  get() {
-        return asLongArray.size
+        return value.size
     }
 
     override operator fun get(index: Int): LongTag {
-        return LongTag.valueOf(asLongArray[index])
+        return LongTag.valueOf(value[index])
     }
 
     override operator fun set(index: Int, tag: LongTag): LongTag {
-        val l = asLongArray[index]
-        asLongArray[index] = tag.longValue()
+        val l = value[index]
+        value[index] = tag.longValue()
         return LongTag.valueOf(l)
     }
 
     override fun add(index: Int, tag: LongTag) {
-        this.asLongArray = ArrayUtils.insert(index, this.asLongArray, tag.longValue())
+        this.value = ArrayUtils.insert(index, this.value, tag.longValue())
     }
 
     override fun removeAt(index: Int): LongTag {
-        val l = asLongArray[index]
-        this.asLongArray = ArrayUtils.remove(this.asLongArray, index)
+        val l = value[index]
+        this.value = ArrayUtils.remove(this.value, index)
         return LongTag.valueOf(l)
     }
 
     override fun clear() {
-        this.asLongArray = LongArray(0)
+        this.value = LongArray(0)
     }
 
-    override fun asLongArray(): Optional<LongArray> {
-        return Optional.of(this.asLongArray)
+    override fun asLongArray(): LongArray {
+        return this.value
     }
 }

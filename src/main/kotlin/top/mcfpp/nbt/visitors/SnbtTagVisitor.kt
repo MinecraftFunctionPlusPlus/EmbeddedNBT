@@ -48,7 +48,7 @@ open class SnbtTagVisitor: TagVisitor {
 
     override fun visitByteArray(byteArrayTag: ByteArrayTag) {
         val stringBuilder = StringBuilder(LIST_OPEN).append("B").append(LIST_TYPE_SEPARATOR)
-        val bs = byteArrayTag.asByteArray
+        val bs = byteArrayTag.value
 
         for (i in bs.indices) {
             stringBuilder.append(ELEMENT_SPACING).append(bs[i].toInt()).append("B")
@@ -63,7 +63,7 @@ open class SnbtTagVisitor: TagVisitor {
 
     override fun visitIntArray(intArrayTag: IntArrayTag) {
         val stringBuilder = StringBuilder(LIST_OPEN).append("I").append(LIST_TYPE_SEPARATOR)
-        val `is` = intArrayTag.asIntArray
+        val `is` = intArrayTag.value
 
         for (i in `is`.indices) {
             stringBuilder.append(ELEMENT_SPACING).append(`is`[i])
@@ -78,7 +78,7 @@ open class SnbtTagVisitor: TagVisitor {
 
     override fun visitLongArray(longArrayTag: LongArrayTag) {
         val stringBuilder = StringBuilder(LIST_OPEN).append("L").append(LIST_TYPE_SEPARATOR)
-        val ls = longArrayTag.asLongArray
+        val ls = longArrayTag.value
 
         for (i in ls.indices) {
             stringBuilder.append(ELEMENT_SPACING).append(ls[i]).append("L")

@@ -7,6 +7,10 @@ import it.unimi.dsi.fastutil.bytes.ByteArrayList
 import it.unimi.dsi.fastutil.bytes.ByteList
 import top.mcfpp.nbt.parsers.error.SnbtException
 import top.mcfpp.nbt.parsers.state.ParseState
+import top.mcfpp.nbt.tags.primitive.ByteTag
+import top.mcfpp.nbt.tags.primitive.IntTag
+import top.mcfpp.nbt.tags.primitive.LongTag
+import top.mcfpp.nbt.tags.primitive.ShortTag
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.stream.IntStream
@@ -164,10 +168,10 @@ data class IntegerLiteral(val sign: Sign, val base: Base, val digits: String, va
             try {
                 return if (bl) {
                     when (typeSuffix) {
-                        TypeSuffix.BYTE -> dynamicOps.createByte(string.toByte(i)) as Any
-                        TypeSuffix.SHORT -> dynamicOps.createShort(string.toShort(i)) as Any
-                        TypeSuffix.INT -> dynamicOps.createInt(string.toInt(i)) as Any
-                        TypeSuffix.LONG -> dynamicOps.createLong(string.toLong(i)) as Any
+                        TypeSuffix.BYTE -> ByteTag(string.toByte(i))
+                        TypeSuffix.SHORT -> ShortTag(string.toShort(i))
+                        TypeSuffix.INT -> IntTag(string.toInt(i))
+                        TypeSuffix.LONG -> LongTag(string.toLong(i))
                         else -> {
                             parseState.errorCollector()
                                 .store(parseState.mark(), SnbtException.ERROR_EXPECTED_INTEGER_TYPE)

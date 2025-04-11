@@ -4,7 +4,7 @@ import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 
 @JvmRecord
-data class ShortTag(val value: Short) : NumericTag {
+data class ShortTag(override val value: Short) : NumericTag<Short> {
     override fun copy(): ShortTag {
         return this
     }

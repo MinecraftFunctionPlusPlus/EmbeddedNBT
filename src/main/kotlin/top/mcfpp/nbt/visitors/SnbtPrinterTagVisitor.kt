@@ -19,7 +19,7 @@ open class SnbtPrinterTagVisitor @JvmOverloads constructor(
 ) : SnbtTagVisitor()  {
     private var result = ""
 
-    override fun visit(tag: Tag?): String {
+    override fun visit(tag: Tag<*>?): String {
         tag!!.accept(this)
         return this.result
     }

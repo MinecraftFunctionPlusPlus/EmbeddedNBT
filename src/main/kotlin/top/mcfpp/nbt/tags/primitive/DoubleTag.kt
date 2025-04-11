@@ -5,7 +5,7 @@ import top.mcfpp.nbt.visitors.TagVisitor
 import top.mcfpp.utils.Math.floor
 
 @JvmRecord
-data class DoubleTag(val value: Double) : NumericTag {
+data class DoubleTag(override val value: Double) : NumericTag<Double> {
     override fun copy(): DoubleTag {
         return this
     }

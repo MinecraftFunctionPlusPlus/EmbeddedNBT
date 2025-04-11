@@ -7,25 +7,25 @@ import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 import java.util.*
 
-class ByteArrayTag(var asByteArray: ByteArray) : CollectionTag<ByteTag> {
+class ByteArrayTag(override var value: ByteArray) : CollectionTag<ByteTag, ByteArray> {
     override fun toString(): String {
         val stringTagVisitor = StringTagVisitor()
         stringTagVisitor.visitByteArray(this)
         return stringTagVisitor.build()
     }
 
-    override fun copy(): Tag {
-        val bs = ByteArray(asByteArray.size)
-        System.arraycopy(this.asByteArray, 0, bs, 0, asByteArray.size)
+    override fun copy(): ByteArrayTag {
+        val bs = ByteArray(value.size)
+        System.arraycopy(this.value, 0, bs, 0, value.size)
         return ByteArrayTag(bs)
     }
 
-    override fun equals(`object`: Any?): Boolean {
-        return this === `object` || `object` is ByteArrayTag && asByteArray.contentEquals(`object`.asByteArray)
+    override fun equals(other: Any?): Boolean {
+        return this === other || other is ByteArrayTag && value.contentEquals(other.value)
     }
 
     override fun hashCode(): Int {
-        return asByteArray.contentHashCode()
+        return value.contentHashCode()
     }
 
     override fun accept(tagVisitor: TagVisitor) {
@@ -33,34 +33,34 @@ class ByteArrayTag(var asByteArray: ByteArray) : CollectionTag<ByteTag> {
     }
 
     override val size: Int get() {
-        return asByteArray.size
+        return value.size
     }
 
     override operator fun get(index: Int): ByteTag {
-        return ByteTag.valueOf(asByteArray[index])
+        return ByteTag.valueOf(value[index])
     }
 
     override operator fun set(index: Int, tag: ByteTag): ByteTag {
-        val b = asByteArray[index]
-        asByteArray[index] = tag.byteValue()
+        val b = value[index]
+        value[index] = tag.byteValue()
         return ByteTag.valueOf(b)
     }
 
     override fun add(index: Int, tag: ByteTag) {
-        this.asByteArray = ArrayUtils.insert(index, this.asByteArray, tag.byteValue())
+        this.value = ArrayUtils.insert(index, this.value, tag.byteValue())
     }
 
     override fun removeAt(index: Int): ByteTag {
-        val b = asByteArray[index]
-        this.asByteArray = ArrayUtils.remove(this.asByteArray, index)
+        val b = value[index]
+        this.value = ArrayUtils.remove(this.value, index)
         return ByteTag.valueOf(b)
     }
 
     override fun clear() {
-        this.asByteArray = ByteArray(0)
+        this.value = ByteArray(0)
     }
 
-    override fun asByteArray(): Optional<ByteArray> {
-        return Optional.of(this.asByteArray)
+    override fun asByteArray(): ByteArray {
+        return this.value
     }
 }

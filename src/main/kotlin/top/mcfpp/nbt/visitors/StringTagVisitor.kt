@@ -48,7 +48,7 @@ class StringTagVisitor : TagVisitor {
 
     override fun visitByteArray(byteArrayTag: ByteArrayTag) {
         builder.append("[B;")
-        val bs = byteArrayTag.asByteArray
+        val bs = byteArrayTag.value
 
         for (i in bs.indices) {
             if (i != 0) {
@@ -63,7 +63,7 @@ class StringTagVisitor : TagVisitor {
 
     override fun visitIntArray(intArrayTag: IntArrayTag) {
         builder.append("[I;")
-        val `is` = intArrayTag.asIntArray
+        val `is` = intArrayTag.value
 
         for (i in `is`.indices) {
             if (i != 0) {
@@ -78,7 +78,7 @@ class StringTagVisitor : TagVisitor {
 
     override fun visitLongArray(longArrayTag: LongArrayTag) {
         builder.append("[L;")
-        val ls = longArrayTag.asLongArray
+        val ls = longArrayTag.value
 
         for (i in ls.indices) {
             if (i != 0) {

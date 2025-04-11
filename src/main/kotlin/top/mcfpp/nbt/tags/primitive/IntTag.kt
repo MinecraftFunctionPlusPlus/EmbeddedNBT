@@ -4,7 +4,7 @@ import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 
 @JvmRecord
-data class IntTag(val value: Int) : NumericTag {
+data class IntTag(override val value: Int) : NumericTag<Int> {
     override fun copy(): IntTag {
         return this
     }

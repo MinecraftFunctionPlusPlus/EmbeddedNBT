@@ -5,7 +5,7 @@ import top.mcfpp.nbt.visitors.TagVisitor
 import top.mcfpp.utils.Math.floor
 
 @JvmRecord
-data class FloatTag(val value: Float) : NumericTag {
+data class FloatTag(override val value: Float) : NumericTag<Float> {
     override fun copy(): FloatTag {
         return this
     }

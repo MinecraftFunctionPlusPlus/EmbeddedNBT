@@ -4,7 +4,7 @@ import top.mcfpp.nbt.tags.Tag
 import java.util.stream.Stream
 import java.util.stream.StreamSupport
 
-interface CollectionTag<T : Tag> : Iterable<T>, Tag {
+interface CollectionTag<T : Tag<*>, V> : Iterable<T>, Tag<V> {
     fun clear()
 
     operator fun set(index: Int, tag: T): T
