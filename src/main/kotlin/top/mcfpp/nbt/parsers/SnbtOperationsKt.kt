@@ -1,10 +1,13 @@
 package top.mcfpp.nbt.parsers
 
-import com.mojang.serialization.DynamicOps
 import top.mcfpp.nbt.parsers.error.SnbtException.ERROR_EXPECTED_NUMBER_OR_BOOLEAN
 import top.mcfpp.nbt.parsers.error.SnbtException.ERROR_EXPECTED_STRING_UUID
 import top.mcfpp.nbt.parsers.error.SuggestionSupplier
 import top.mcfpp.nbt.parsers.state.ParseState
+import top.mcfpp.nbt.tags.Tag
+import top.mcfpp.nbt.tags.primitive.ByteTag.Companion.valueOf
+import top.mcfpp.nbt.tags.primitive.StringTag
+import top.mcfpp.utils.TagUtils
 import top.mcfpp.utils.UUIDUtil
 import java.util.*
 import java.util.stream.Collectors
@@ -17,29 +20,29 @@ object SnbtOperationsKt {
 
     val BUILTIN_OPERATIONS: Map<BuiltinKey, BuiltinOperation> = mapOf(
         BuiltinKey("bool", 1) to object : BuiltinOperation {
-            override fun <T> run(dynamicOps: DynamicOps<T>, list: List<T>, parseState: ParseState): T? {
-                val boolean_ = convert(dynamicOps, list.first())
+            override fun run(list: List<Tag<*>>, parseState: ParseState): Tag<*>? {
+                val boolean_ = convert(list.first())
                 return if (boolean_ == null) {
                     parseState.errorCollector().store(parseState.mark(), ERROR_EXPECTED_NUMBER_OR_BOOLEAN)
                     null
                 } else {
-                    dynamicOps.createBoolean(boolean_)
+                    valueOf(boolean_)
                 }
             }
 
-            private fun <T> convert(dynamicOps: DynamicOps<T>, `object`: T): Boolean? {
-                val optional = dynamicOps.getBooleanValue(`object`).result()
+            private fun convert( `object`: Tag<*>): Boolean? {
+                val optional = getBooleanValue(`object`)
                 return if (optional.isPresent) {
                     optional.get()
                 } else {
-                    val optional2 = dynamicOps.getNumberValue(`object`).result()
+                    val optional2 = getNumberValue(`object`)
                     if (optional2.isPresent) optional2.get().toDouble() != 0.0 else null
                 }
             }
         },
         BuiltinKey("uuid", 1) to object : BuiltinOperation {
-            override fun <T> run(dynamicOps: DynamicOps<T>, list: List<T>, parseState: ParseState): T? {
-                val optional = dynamicOps.getStringValue(list.first()).result()
+            override fun run(list: List<Tag<*>>, parseState: ParseState): Tag<*>? {
+                val optional = getStringValue(list.first())
                 if (optional.isEmpty) {
                     parseState.errorCollector().store(parseState.mark(), ERROR_EXPECTED_STRING_UUID)
                     return null
@@ -51,11 +54,25 @@ object SnbtOperationsKt {
                         return null
                     }
 
-                    return dynamicOps.createIntList(IntStream.of(*UUIDUtil.uuidToIntArray(uUID)))
+                    return TagUtils.createIntList(IntStream.of(*UUIDUtil.uuidToIntArray(uUID)))
                 }
             }
         }
     )
+
+    fun getNumberValue(tag: Tag<*>): Optional<Number> {
+        return tag.asNumber()?.let { Optional.ofNullable(it) }?:  Optional.empty()
+    }
+
+    fun getStringValue(tag: Tag<*>): Optional<String> {
+        return if (tag is StringTag) Optional.ofNullable(tag.value) else Optional.empty()
+    }
+
+    fun getBooleanValue(input: Tag<*>): Optional<Boolean> {
+        return getNumberValue(input).map { number: Number ->
+            number.toByte().toInt() != 0
+        }
+    }
 
     val BUILTIN_IDS: SuggestionSupplier = object : SuggestionSupplier {
         private val keys: Set<String> = Stream.concat(
@@ -76,6 +93,6 @@ object SnbtOperationsKt {
     }
 
     interface BuiltinOperation {
-        fun <T> run(dynamicOps: DynamicOps<T>, list: List<T>, parseState: ParseState): T?
+        fun run(list: List<Tag<*>>, parseState: ParseState): Tag<*>?
     }
 }

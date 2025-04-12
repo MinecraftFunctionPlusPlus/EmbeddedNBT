@@ -1,9 +1,5 @@
 package top.mcfpp.nbt.tags
 
-import com.mojang.serialization.Codec
-import com.mojang.serialization.DynamicOps
-import com.mojang.serialization.MapCodec
-import top.mcfpp.nbt.NbtOps
 import top.mcfpp.nbt.tags.collection.ByteArrayTag
 import top.mcfpp.nbt.tags.collection.IntArrayTag
 import top.mcfpp.nbt.tags.collection.ListTag
@@ -42,31 +38,19 @@ class CompoundTag(override val value: MutableMap<String, Tag<*>> = HashMap()) : 
     }
 
     fun put(string: String, e: Any): Tag<*>? {
-        when (e) {
-            is Byte -> return value.put(string, valueOf(e))
-
-            is Short -> return value.put(string, valueOf(e))
-
-            is Int -> return value.put(string, valueOf(e))
-
-            is Long -> return value.put(string, valueOf(e))
-
-            is Float -> return value.put(string, valueOf(e))
-
-            is Double -> return value.put(string, valueOf(e))
-
-            is String -> return value.put(string, valueOf(e))
-
-            is ByteArray -> return value.put(string, ByteArrayTag(e))
-
-            is IntArray -> return value.put(string, IntArrayTag(e))
-
-            is LongArray -> return value.put(string, LongArrayTag(e))
-
-            is Boolean -> return value.put(string, valueOf(e))
-
-            is Tag<*> -> return value.put(string, e)
-
+        return when (e) {
+            is Byte ->  value.put(string, valueOf(e))
+            is Short ->  value.put(string, valueOf(e))
+            is Int ->  value.put(string, valueOf(e))
+            is Long ->  value.put(string, valueOf(e))
+            is Float ->  value.put(string, valueOf(e))
+            is Double ->  value.put(string, valueOf(e))
+            is String ->  value.put(string, valueOf(e))
+            is ByteArray ->  value.put(string, ByteArrayTag(e))
+            is IntArray ->  value.put(string, IntArrayTag(e))
+            is LongArray ->  value.put(string, LongArrayTag(e))
+            is Boolean ->  value.put(string, valueOf(e))
+            is Tag<*> ->  value.put(string, e)
             else -> throw IllegalStateException("Unexpected value: $e")
         }
     }
@@ -150,53 +134,5 @@ class CompoundTag(override val value: MutableMap<String, Tag<*>> = HashMap()) : 
 
     override fun accept(tagVisitor: TagVisitor) {
         tagVisitor.visitCompound(this)
-    }
-
-    fun <T> store(string: String, codec: Codec<T>, `object`: T) {
-        this.store(string, codec, NbtOps.INSTANCE, `object`)
-    }
-
-    fun <T> storeNullable(string: String, codec: Codec<T>, `object`: T?) {
-        if (`object` != null) {
-            this.store(string, codec, `object`)
-        }
-    }
-
-    fun <T> store(string: String, codec: Codec<T>, dynamicOps: DynamicOps<Tag<*>>?, `object`: T) {
-        this.put(string, codec.encodeStart(dynamicOps, `object`).getOrThrow())
-    }
-
-    fun <T> storeNullable(string: String, codec: Codec<T>, dynamicOps: DynamicOps<Tag<*>>?, `object`: T?) {
-        if (`object` != null) {
-            this.store(string, codec, dynamicOps, `object`)
-        }
-    }
-
-    fun <T> store(mapCodec: MapCodec<T>, `object`: T) {
-        this.store(mapCodec, NbtOps.INSTANCE, `object`)
-    }
-
-    fun <T> store(mapCodec: MapCodec<T>, dynamicOps: DynamicOps<Tag<*>>?, `object`: T) {
-        this.merge(mapCodec.encoder().encodeStart(dynamicOps, `object`).getOrThrow() as CompoundTag)
-    }
-
-    fun <T:Any> read(string: String, codec: Codec<T>): Optional<T> {
-        return this.read(string, codec, NbtOps.INSTANCE)
-    }
-
-    fun <T:Any> read(string: String, codec: Codec<T>, dynamicOps: DynamicOps<Tag<*>>?): Optional<T> {
-        val tag = this[string]
-        return if (tag == null
-        ) Optional.empty()
-        else codec.parse(dynamicOps, tag).resultOrPartial { string2: String -> }
-    }
-
-    fun <T:Any> read(mapCodec: MapCodec<T>): Optional<T> {
-        return this.read<T>(mapCodec, NbtOps.INSTANCE)
-    }
-
-    fun <T:Any> read(mapCodec: MapCodec<T>, dynamicOps: DynamicOps<Tag<*>>): Optional<T> {
-        return mapCodec.decode(dynamicOps, dynamicOps.getMap(this).getOrThrow())
-            .resultOrPartial { string: String -> }
     }
 }

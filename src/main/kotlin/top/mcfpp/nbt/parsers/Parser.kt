@@ -3,7 +3,6 @@ package top.mcfpp.nbt.parsers
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
-import top.mcfpp.nbt.NbtOps
 import top.mcfpp.nbt.parsers.error.DelayedException
 import top.mcfpp.nbt.parsers.error.ErrorCollector
 import top.mcfpp.nbt.parsers.error.ErrorEntry
@@ -35,7 +34,7 @@ object Parser {
     @JvmStatic
     @Throws(CommandSyntaxException::class)
     fun parse(stringReader:StringReader): Tag<*> {
-        val nameRule = SnbtGrammar.createParser(NbtOps.INSTANCE)
+        val nameRule = SnbtGrammar.createParser()
 
         val `object` = parseForCommands(stringReader,nameRule)
         stringReader.skipWhitespace()

@@ -1,16 +1,16 @@
 package top.mcfpp.nbt.parsers
 
 import com.google.common.primitives.UnsignedBytes
-import com.mojang.serialization.DynamicOps
-import com.mojang.serialization.JavaOps
 import it.unimi.dsi.fastutil.bytes.ByteArrayList
 import it.unimi.dsi.fastutil.bytes.ByteList
 import top.mcfpp.nbt.parsers.error.SnbtException
 import top.mcfpp.nbt.parsers.state.ParseState
-import top.mcfpp.nbt.tags.primitive.ByteTag
-import top.mcfpp.nbt.tags.primitive.IntTag
-import top.mcfpp.nbt.tags.primitive.LongTag
-import top.mcfpp.nbt.tags.primitive.ShortTag
+import top.mcfpp.nbt.tags.Tag
+import top.mcfpp.nbt.tags.primitive.ByteTag.Companion.valueOf
+import top.mcfpp.nbt.tags.primitive.IntTag.Companion.valueOf
+import top.mcfpp.nbt.tags.primitive.LongTag.Companion.valueOf
+import top.mcfpp.nbt.tags.primitive.ShortTag.Companion.valueOf
+import top.mcfpp.utils.TagUtils
 import java.nio.ByteBuffer
 import java.util.*
 import java.util.stream.IntStream
@@ -21,15 +21,14 @@ import java.util.stream.LongStream
 enum class ArrayPrefix(private val defaultType: TypeSuffix, vararg typeSuffixs: TypeSuffix) {
 
     BYTE(TypeSuffix.BYTE) {
-        override fun <T> create(dynamicOps: DynamicOps<T>): T {
-            return dynamicOps.createByteList(EMPTY_BUFFER)
+        override fun create(): Tag<*> {
+            return TagUtils.createByteList(EMPTY_BUFFER)
         }
 
-        override fun <T> create(
-            dynamicOps: DynamicOps<T>,
+        override fun  create(
             list: List<IntegerLiteral?>,
             parseState: ParseState?
-        ): T? {
+        ): Tag<*>? {
             val byteList: ByteList = ByteArrayList()
 
             for (integerLiteral in list) {
@@ -38,19 +37,18 @@ enum class ArrayPrefix(private val defaultType: TypeSuffix, vararg typeSuffixs: 
                 byteList.add(number.toByte())
             }
 
-            return dynamicOps.createByteList(ByteBuffer.wrap(byteList.toByteArray()))
+            return TagUtils.createByteList(ByteBuffer.wrap(byteList.toByteArray()))
         }
     },
     INT(TypeSuffix.INT, TypeSuffix.BYTE, TypeSuffix.SHORT) {
-        override fun <T> create(dynamicOps: DynamicOps<T>): T {
-            return dynamicOps.createIntList(IntStream.empty())
+        override fun create(): Tag<*> {
+            return TagUtils.createIntList(IntStream.empty())
         }
 
-        override fun <T> create(
-            dynamicOps: DynamicOps<T>,
+        override fun  create(
             list: List<IntegerLiteral?>,
             parseState: ParseState?
-        ): T? {
+        ): Tag<*>? {
             val builder = IntStream.builder()
 
             for (integerLiteral in list) {
@@ -59,19 +57,18 @@ enum class ArrayPrefix(private val defaultType: TypeSuffix, vararg typeSuffixs: 
                 builder.add(number.toInt())
             }
 
-            return dynamicOps.createIntList(builder.build())
+            return TagUtils.createIntList(builder.build())
         }
     },
     LONG(TypeSuffix.LONG, TypeSuffix.BYTE, TypeSuffix.SHORT, TypeSuffix.INT) {
-        override fun <T> create(dynamicOps: DynamicOps<T>): T {
-            return dynamicOps.createLongList(LongStream.empty())
+        override fun create(): Tag<*> {
+            return TagUtils.createLongList(LongStream.empty())
         }
 
-        override fun <T> create(
-            dynamicOps: DynamicOps<T>,
+        override fun create(
             list: List<IntegerLiteral?>,
             parseState: ParseState?
-        ): T? {
+        ): Tag<*>? {
             val builder = LongStream.builder()
 
             for (integerLiteral in list) {
@@ -80,7 +77,7 @@ enum class ArrayPrefix(private val defaultType: TypeSuffix, vararg typeSuffixs: 
                 builder.add(number.toLong())
             }
 
-            return dynamicOps.createLongList(builder.build())
+            return TagUtils.createLongList(builder.build())
         }
     };
 
@@ -90,9 +87,9 @@ enum class ArrayPrefix(private val defaultType: TypeSuffix, vararg typeSuffixs: 
         return typeSuffix == this.defaultType || additionalTypes.contains(typeSuffix)
     }
 
-    abstract fun <T> create(dynamicOps: DynamicOps<T>): T
+    abstract fun  create(): Tag<*>
 
-    abstract fun <T> create(dynamicOps: DynamicOps<T>, list: List<IntegerLiteral?>, parseState: ParseState?): T?
+    abstract fun  create( list: List<IntegerLiteral?>, parseState: ParseState?): Tag<*>?
 
     protected fun buildNumber(integerLiteral: IntegerLiteral, parseState: ParseState): Number? {
         val typeSuffix = this.computeType(integerLiteral.suffix)
@@ -100,7 +97,7 @@ enum class ArrayPrefix(private val defaultType: TypeSuffix, vararg typeSuffixs: 
             parseState.errorCollector().store(parseState.mark(), SnbtException.ERROR_INVALID_ARRAY_ELEMENT_TYPE)
             return null
         } else {
-            return integerLiteral.create(JavaOps.INSTANCE, typeSuffix, parseState) as Number?
+            return integerLiteral.create(typeSuffix, parseState)?.asNumber()
         }
     }
 
@@ -147,11 +144,11 @@ data class IntegerLiteral(val sign: Sign, val base: Base, val digits: String, va
         }
     }
 
-    fun <T> create(dynamicOps: DynamicOps<T>, parseState: ParseState): T? {
-        return this.create(dynamicOps, Objects.requireNonNullElse(suffix.type, TypeSuffix.INT), parseState)
+    fun create(parseState: ParseState): Tag<*>? {
+        return this.create( Objects.requireNonNullElse(suffix.type, TypeSuffix.INT), parseState)
     }
 
-    fun <T> create(dynamicOps: DynamicOps<T>, typeSuffix: TypeSuffix?, parseState: ParseState): T? {
+    fun create(typeSuffix: TypeSuffix?, parseState: ParseState): Tag<*>? {
         val bl = this.signedOrDefault() == SignedPrefix.SIGNED
         if (!bl && this.sign == Sign.MINUS) {
             parseState.errorCollector().store(parseState.mark(), SnbtException.ERROR_EXPECTED_NON_NEGATIVE_NUMBER)
@@ -168,34 +165,28 @@ data class IntegerLiteral(val sign: Sign, val base: Base, val digits: String, va
             try {
                 return if (bl) {
                     when (typeSuffix) {
-                        TypeSuffix.BYTE -> ByteTag(string.toByte(i))
-                        TypeSuffix.SHORT -> ShortTag(string.toShort(i))
-                        TypeSuffix.INT -> IntTag(string.toInt(i))
-                        TypeSuffix.LONG -> LongTag(string.toLong(i))
+                        TypeSuffix.BYTE -> valueOf(string.toByte(i))
+                        TypeSuffix.SHORT -> valueOf(string.toShort(i))
+                        TypeSuffix.INT -> valueOf(string.toInt(i))
+                        TypeSuffix.LONG -> valueOf(string.toLong(i))
                         else -> {
                             parseState.errorCollector()
                                 .store(parseState.mark(), SnbtException.ERROR_EXPECTED_INTEGER_TYPE)
                             null
                         }
-                    } as T
+                    }
                 } else {
                     when (typeSuffix) {
-                        TypeSuffix.BYTE -> dynamicOps.createByte(UnsignedBytes.parseUnsignedByte(string, i)) as Any
-                        TypeSuffix.SHORT -> dynamicOps.createShort(
-                            SnbtGrammarUtils.parseUnsignedShort(
-                                string,
-                                i
-                            )
-                        ) as Any
-
-                        TypeSuffix.INT -> dynamicOps.createInt(Integer.parseUnsignedInt(string, i)) as Any
-                        TypeSuffix.LONG -> dynamicOps.createLong(java.lang.Long.parseUnsignedLong(string, i)) as Any
+                        TypeSuffix.BYTE -> valueOf(UnsignedBytes.parseUnsignedByte(string, i))
+                        TypeSuffix.SHORT -> valueOf(SnbtGrammarUtils.parseUnsignedShort(string, i))
+                        TypeSuffix.INT -> valueOf(Integer.parseUnsignedInt(string, i))
+                        TypeSuffix.LONG -> valueOf(java.lang.Long.parseUnsignedLong(string, i))
                         else -> {
                             parseState.errorCollector()
                                 .store(parseState.mark(), SnbtException.ERROR_EXPECTED_INTEGER_TYPE)
                             null
                         }
-                    } as T
+                    }
                 }
             } catch (var8: NumberFormatException) {
                 parseState.errorCollector().store(parseState.mark(), SnbtException.createNumberParseError(var8))

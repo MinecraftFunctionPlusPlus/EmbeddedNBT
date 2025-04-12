@@ -1,12 +1,14 @@
 package top.mcfpp.nbt.parsers
 
-import com.mojang.serialization.DynamicOps
 import it.unimi.dsi.fastutil.chars.CharList
 import top.mcfpp.nbt.parsers.rules.GreedyPredicateParseRule
 import top.mcfpp.nbt.parsers.rules.NumberRunParseRule
 import top.mcfpp.nbt.parsers.state.ParseState
 import top.mcfpp.nbt.parsers.error.SnbtException
 import top.mcfpp.nbt.parsers.term.TerminalCharacters
+import top.mcfpp.nbt.tags.Tag
+import top.mcfpp.nbt.tags.primitive.DoubleTag.Companion.valueOf
+import top.mcfpp.nbt.tags.primitive.FloatTag.Companion.valueOf
 import java.util.*
 import java.util.regex.Pattern
 
@@ -121,15 +123,14 @@ object SnbtGrammarUtils {
     }
 
     @JvmStatic
-    fun <T> createFloat(
-        dynamicOps: DynamicOps<T>,
+    fun  createFloat(
         sign: Sign,
         string: String?,
         string2: String?,
         signed: Signed<String>?,
         typeSuffix: TypeSuffix?,
         parseState: ParseState
-    ): T? {
+    ): Tag<*>? {
         val stringBuilder = StringBuilder()
         sign.append(stringBuilder)
         if (string != null) {
@@ -151,14 +152,14 @@ object SnbtGrammarUtils {
             val string3 = stringBuilder.toString()
 
             return when (typeSuffix) {
-                null -> convertDouble(dynamicOps, parseState, string3)
-                TypeSuffix.FLOAT -> convertFloat(dynamicOps, parseState, string3)
-                TypeSuffix.DOUBLE -> convertDouble(dynamicOps, parseState, string3)
+                null -> convertDouble( parseState, string3)
+                TypeSuffix.FLOAT -> convertFloat( parseState, string3)
+                TypeSuffix.DOUBLE -> convertDouble( parseState, string3)
                 else -> {
                     parseState.errorCollector().store(parseState.mark(), SnbtException.ERROR_EXPECTED_FLOAT_TYPE)
                     null
                 }
-            } as T
+            } as Tag<*>
         } catch (var11: NumberFormatException) {
             parseState.errorCollector().store(parseState.mark(), SnbtException.createNumberParseError(var11))
             return null
@@ -166,24 +167,24 @@ object SnbtGrammarUtils {
     }
 
     @JvmStatic
-    fun <T> convertFloat(dynamicOps: DynamicOps<T>, parseState: ParseState, string: String): T? {
+    fun convertFloat( parseState: ParseState, string: String): Tag<*>? {
         val f = string.toFloat()
         if (!java.lang.Float.isFinite(f)) {
             parseState.errorCollector().store(parseState.mark(), SnbtException.ERROR_INFINITY_NOT_ALLOWED)
             return null
         } else {
-            return dynamicOps.createFloat(f)
+            return valueOf(f)
         }
     }
 
     @JvmStatic
-    fun <T> convertDouble(dynamicOps: DynamicOps<T>, parseState: ParseState, string: String): T? {
+    fun  convertDouble( parseState: ParseState, string: String): Tag<*>? {
         val d = string.toDouble()
         if (!java.lang.Double.isFinite(d)) {
             parseState.errorCollector().store(parseState.mark(), SnbtException.ERROR_INFINITY_NOT_ALLOWED)
             return null
         } else {
-            return dynamicOps.createDouble(d)
+            return valueOf(d)
         }
     }
 
