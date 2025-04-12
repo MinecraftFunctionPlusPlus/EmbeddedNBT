@@ -13,10 +13,18 @@ import top.mcfpp.nbt.tags.primitive.ShortTag.Companion.valueOf
 import top.mcfpp.nbt.tags.primitive.StringTag.Companion.valueOf
 import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
-import java.util.*
 import java.util.function.BiConsumer
 
-class CompoundTag(override val value: MutableMap<String, Tag<*>> = HashMap()) : Tag<MutableMap<String, Tag<*>>> {
+class CompoundTag(value: Map<String, Tag<*>> = HashMap()) : Tag<MutableMap<String, Tag<*>>>, Iterable<Map.Entry<String, Tag<*>>>{
+
+    override val value: MutableMap<String, Tag<*>> = value.toMutableMap()
+
+    constructor(vararg pairs: Pair<String, Any>) : this() {
+        for (pair in pairs) {
+            put(pair.first, pair.second)
+        }
+    }
+
     fun keySet(): Set<String> {
         return value.keys
     }
@@ -59,8 +67,8 @@ class CompoundTag(override val value: MutableMap<String, Tag<*>> = HashMap()) : 
         put(string,e)
     }
 
-    operator fun get(string: String): Tag<*>? {
-        return value[string]
+    operator fun get(key: String): Tag<*>? {
+        return value[key]
     }
 
     fun contains(string: String): Boolean {
@@ -117,6 +125,10 @@ class CompoundTag(override val value: MutableMap<String, Tag<*>> = HashMap()) : 
         return value.hashCode()
     }
 
+    override fun iterator(): Iterator<Map.Entry<String, Tag<*>>> {
+        return value.iterator()
+    }
+
 
     fun merge(compoundTag: CompoundTag): CompoundTag {
         for (string in compoundTag.value.keys) {
@@ -134,5 +146,9 @@ class CompoundTag(override val value: MutableMap<String, Tag<*>> = HashMap()) : 
 
     override fun accept(tagVisitor: TagVisitor) {
         tagVisitor.visitCompound(this)
+    }
+
+    fun containsKey(key: String): Boolean {
+        return value.containsKey(key)
     }
 }

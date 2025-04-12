@@ -6,6 +6,9 @@ import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 
 class IntArrayTag(override var value: IntArray) : CollectionTag<IntTag, IntArray> {
+
+    constructor() : this(IntArray(0))
+
     override fun toString(): String {
         val stringTagVisitor = StringTagVisitor()
         stringTagVisitor.visitIntArray(this)

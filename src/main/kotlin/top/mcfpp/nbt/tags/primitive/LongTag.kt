@@ -5,6 +5,8 @@ import top.mcfpp.nbt.visitors.TagVisitor
 
 @JvmRecord
 data class LongTag(override val value: Long) : NumericTag<Long> {
+
+    constructor() : this(0L)
     override fun copy(): LongTag {
         return this
     }

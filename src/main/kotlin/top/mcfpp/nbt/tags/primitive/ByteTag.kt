@@ -5,6 +5,11 @@ import top.mcfpp.nbt.visitors.TagVisitor
 
 @JvmRecord
 data class ByteTag(override val value: Byte) : NumericTag<Byte> {
+
+    constructor() : this(0.toByte())
+
+    constructor(value: Boolean) : this(if(value) 1.toByte() else 0.toByte())
+
     override fun copy(): ByteTag {
         return this
     }

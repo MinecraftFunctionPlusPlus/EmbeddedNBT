@@ -6,6 +6,9 @@ import top.mcfpp.nbt.visitors.TagVisitor
 
 @JvmRecord
 data class StringTag(override val value: String) : PrimitiveTag<String> {
+
+    constructor() : this("")
+
     override fun toString(): String {
         val stringTagVisitor = StringTagVisitor()
         stringTagVisitor.visitString(this)

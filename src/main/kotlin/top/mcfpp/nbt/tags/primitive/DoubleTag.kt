@@ -6,6 +6,8 @@ import top.mcfpp.utils.Math.floor
 
 @JvmRecord
 data class DoubleTag(override val value: Double) : NumericTag<Double> {
+
+    constructor() : this(0.0)
     override fun copy(): DoubleTag {
         return this
     }

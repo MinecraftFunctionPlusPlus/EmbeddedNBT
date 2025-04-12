@@ -1,5 +1,7 @@
 package top.mcfpp.nbt.tags
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException
+import top.mcfpp.nbt.parsers.Parser
 import top.mcfpp.nbt.tags.collection.ByteArrayTag
 import top.mcfpp.nbt.tags.collection.IntArrayTag
 import top.mcfpp.nbt.tags.collection.ListTag
@@ -7,6 +9,7 @@ import top.mcfpp.nbt.tags.collection.LongArrayTag
 import top.mcfpp.nbt.tags.primitive.NumericTag
 import top.mcfpp.nbt.tags.primitive.StringTag
 import top.mcfpp.nbt.tags.primitive.asN
+import top.mcfpp.nbt.visitors.SnbtTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 
 interface Tag<V> {
@@ -73,6 +76,20 @@ interface Tag<V> {
 
     fun asList(): ListTag? {
         return null
+    }
+
+    companion object {
+
+        @JvmStatic
+        fun toSNBT(tag: Tag<*>): String {
+            return SnbtTagVisitor().visit(tag)
+        }
+
+        @JvmStatic
+        @Throws(CommandSyntaxException::class)
+        fun toNBT(string: String): Tag<*> {
+            return Parser.parse(string)
+        }
     }
 }
 

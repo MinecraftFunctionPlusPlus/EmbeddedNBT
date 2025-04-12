@@ -6,11 +6,15 @@ import top.mcfpp.nbt.tags.asT
 import top.mcfpp.nbt.visitors.StringTagVisitor
 import top.mcfpp.nbt.visitors.TagVisitor
 import java.util.stream.Stream
-import kotlin.collections.ArrayList
-import kotlin.collections.MutableList
 
 @Suppress("unused")
-class ListTag(override val value: MutableList<Tag<*>>): CollectionTag<Tag<*>, MutableList<Tag<*>>>,AbstractMutableList<Tag<*>>(){
+class ListTag(list: List<Tag<*>>) : CollectionTag<Tag<*>, MutableList<Tag<*>>>,AbstractMutableList<Tag<*>>(){
+
+    constructor(list: Stream<Tag<*>>) : this(list.toList())
+
+
+    override val value: MutableList<Tag<*>> = ArrayList(list)
+
     constructor() : this(ArrayList<Tag<*>>())
 
     override fun toString(): String {

@@ -1,13 +1,10 @@
 package top.mcfpp.nbt
 
 import com.google.common.annotations.VisibleForTesting
-import com.mojang.brigadier.exceptions.CommandSyntaxException
-import top.mcfpp.nbt.parsers.Parser.parse
 import top.mcfpp.nbt.tags.CompoundTag
 import top.mcfpp.nbt.tags.Tag
 import top.mcfpp.nbt.tags.collection.ListTag
 import top.mcfpp.nbt.visitors.SnbtPrinterTagVisitor
-import top.mcfpp.nbt.visitors.SnbtTagVisitor
 
 object NBTUtils {
     @VisibleForTesting
@@ -66,13 +63,5 @@ object NBTUtils {
         return SnbtPrinterTagVisitor().visit(compoundTag)
     }
 
-    fun toSNBT(tag: Tag<*>): String {
-        return SnbtTagVisitor().visit(tag)
-    }
-
-    @Throws(CommandSyntaxException::class)
-    fun toNBT(string: String): Tag<*> {
-        return parse(string)
-    }
 }
 
