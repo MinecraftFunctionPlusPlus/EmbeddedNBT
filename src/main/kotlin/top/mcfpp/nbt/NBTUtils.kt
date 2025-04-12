@@ -2,14 +2,14 @@ package top.mcfpp.nbt
 
 import com.google.common.annotations.VisibleForTesting
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import top.mcfpp.nbt.parsers.Parser.parseCompoundFully
+import top.mcfpp.nbt.parsers.Parser.parse
 import top.mcfpp.nbt.tags.CompoundTag
 import top.mcfpp.nbt.tags.Tag
 import top.mcfpp.nbt.tags.collection.ListTag
 import top.mcfpp.nbt.visitors.SnbtPrinterTagVisitor
 import top.mcfpp.nbt.visitors.SnbtTagVisitor
 
-object NbtUtils {
+object NBTUtils {
     @VisibleForTesting
     fun compareNbt(tag: Tag<*>?, tag2: Tag<*>?, bl: Boolean): Boolean {
         if (tag === tag2) {
@@ -62,17 +62,17 @@ object NbtUtils {
         }
     }
 
-    fun nbtToSnbtPretty(compoundTag: CompoundTag?): String {
+    fun toSNBTPretty(compoundTag: CompoundTag?): String {
         return SnbtPrinterTagVisitor().visit(compoundTag)
     }
 
-    fun nbtToSnbt(compoundTag: CompoundTag?): String {
-        return SnbtTagVisitor().visit(compoundTag)
+    fun toSNBT(tag: Tag<*>): String {
+        return SnbtTagVisitor().visit(tag)
     }
 
     @Throws(CommandSyntaxException::class)
-    fun snbtToNbt(string: String?): CompoundTag {
-        return parseCompoundFully(string)
+    fun toNBT(string: String): Tag<*> {
+        return parse(string)
     }
 }
 

@@ -97,6 +97,7 @@ sealed interface Term {
             return TerminalWord(string)
         }
 
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         fun character(c: Char): Term {
             return object : TerminalCharacters(CharList.of(c)) {
                 override fun isAccepted(c1: Char): Boolean {
@@ -105,6 +106,7 @@ sealed interface Term {
             }
         }
 
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         fun characters(c: Char, d: Char): Term {
             return object : TerminalCharacters(CharList.of(c, d)) {
                 override fun isAccepted(c1: Char): Boolean {
@@ -347,7 +349,7 @@ abstract class TerminalCharacters(charList: CharList) : Term {
         this.error =
             DelayedException.create(CommandSyntaxException.BUILT_IN_EXCEPTIONS.literalIncorrect(), string.toString())
         this.suggestions =
-            SuggestionSupplier { parseState: ParseState ->
+            SuggestionSupplier {
                 charList.intStream().mapToObj { codePoint: Int ->
                     Character.toString(
                         codePoint
@@ -376,10 +378,8 @@ class TerminalWord(private val value: String) : Term {
         value
     )
     private val suggestions =
-        SuggestionSupplier { parseState: ParseState? ->
-            Stream.of(
-                value
-            )
+        SuggestionSupplier {
+            Stream.of(value)
         }
 
     override fun parse(parseState: ParseState, scope: Scope, control: Control): Boolean {

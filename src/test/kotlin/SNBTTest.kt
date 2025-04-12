@@ -30,7 +30,7 @@ class SNBTTest {
                 add(IntTag.valueOf(4))
             })
         }
-        val str = NbtUtils.nbtToSnbt(tag)
+        val str = NBTUtils.toSNBT(tag)
         println(str)
     }
 
@@ -50,7 +50,7 @@ class SNBTTest {
 
     @Test
     fun testSNBTtoNBT(){
-        val tag = NbtUtils.snbtToNbt("""
+        val tag = NBTUtils.toNBT("""
             {
                 array_byte: [B; 1B, 2B, 3B, 4B],
                 array_int: [I; 1, 2, 3, 4],

@@ -3,6 +3,7 @@ plugins {
     id("java")
     id("application")
     //id("org.gradlex.extra-java-module-info") version "1.11"
+    id("maven-publish")
 }
 
 group = "top.mcfpp"
@@ -59,3 +60,17 @@ java {
     modularity.inferModulePath = true
 }
 
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = "top.mcfpp"
+            artifactId = "nbt"
+            version = "1.0"
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}

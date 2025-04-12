@@ -1,9 +1,9 @@
 package top.mcfpp.nbt.parsers.rules
 
-import top.mcfpp.nbt.parsers.term.Scope
-import top.mcfpp.nbt.parsers.term.Term
 import top.mcfpp.nbt.parsers.state.ParseState
 import top.mcfpp.nbt.parsers.term.Control
+import top.mcfpp.nbt.parsers.term.Scope
+import top.mcfpp.nbt.parsers.term.Term
 
 interface Rule<T> {
     fun parse(parseState: ParseState): T?
@@ -22,6 +22,7 @@ interface Rule<T> {
 
     @JvmRecord
     data class WrappedTerm<T:Any>(val action: RuleAction<T>, val child: Term) : Rule<T> {
+        @Suppress("UNCHECKED_CAST")
         override fun parse(parseState: ParseState): T? {
             val scope = parseState.scope()
             scope.pushFrame()

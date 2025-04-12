@@ -3,8 +3,6 @@ package top.mcfpp.nbt.parsers.state
 import com.mojang.brigadier.StringReader
 import top.mcfpp.nbt.parsers.error.ErrorCollector
 import top.mcfpp.nbt.parsers.term.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class CachedParseState(private val errorCollector: ErrorCollector,private val input: StringReader) : ParseState {
     private val positionCaches: MutableList<PositionCache> = ArrayList(256)
@@ -90,6 +88,7 @@ class CachedParseState(private val errorCollector: ErrorCollector,private val in
         companion object {
             val NEGATIVE: CacheEntry<*> = CacheEntry<Any?>(null, -1)
 
+            @Suppress("UNCHECKED_CAST")
             fun <T> negativeEntry(): CacheEntry<T> {
                 return NEGATIVE as CacheEntry<T>
             }
@@ -103,6 +102,7 @@ class CachedParseState(private val errorCollector: ErrorCollector,private val in
             return cacheMap.containsKey(atom)
         }
 
+        @Suppress("UNCHECKED_CAST")
         fun <T> getValue(atom: Atom<*>): CacheEntry<T>? {
             return cacheMap[atom] as CacheEntry<T>?
         }
